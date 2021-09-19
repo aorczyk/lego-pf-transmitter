@@ -53,9 +53,7 @@ namespace makerbit {
                 const end = input.runningTimeMicros();
                 this.waitCorrection = Math.idiv(end - start - runs * 2, runs * 2);
 
-                console.log('calibration')
-                console.log(end - start)
-                console.log(this.waitCorrection)
+                serial.writeNumbers([end - start,this.waitCorrection])
             }
 
             // Insert a pause between callibration and first message
@@ -111,9 +109,11 @@ namespace makerbit {
             // basic.pause(pasue)
 
             if (debug) {
-                console.log(JSON.stringify(splitToBulks(bits, 4)))
-                console.log(this.messageLength / 1000)
-                console.log((input.runningTimeMicros() - start) / 1000)
+                serial.writeNumbers([this.messageLength / 1000, (input.runningTimeMicros() - start) / 1000])
+
+                // console.log(JSON.stringify(splitToBulks(bits, 4)))
+                // console.log(this.messageLength / 1000)
+                // console.log((input.runningTimeMicros() - start) / 1000)
             }
         }
     }
@@ -141,31 +141,74 @@ namespace makerbit {
         return b - a
     }
 
-    function schedule(channel: number, output: number, handler: () => void) {
+    function getPauseTime(channel: number, output: number): number{
         let time = input.runningTime();
 
         let scheduleTime = [
-            signalTime + signalDelay,
+            // signalTime + signalDelay,
             channelTime[channel] + channelDelay,
             outputTime[channel][output] + outputDelay,
             time
         ].sort(compareNumbers)[0];
 
-        let pauseTime = scheduleTime - time;
+        return scheduleTime - time;
+    }
 
-        if (pauseTime > 0) {
-            basic.pause(pauseTime)
+    interface task {
+        channel: number;
+        output: number;
+        handler: () => void;
+    }
+
+    let isWorking: boolean = false;
+    let tasks: task[] = [];
+
+    function schedule(channel: number, output: number, handler: () => void) {
+        tasks.push({channel: channel, output: output, handler: handler})
+        
+        if (!isWorking){
+            isWorking = true;
+
+            control.inBackground(function() {
+                while(tasks.length > 0){
+                    let task = tasks.shift();
+
+                    // let pauseTime = getPauseTime(task.channel, task.output)
+
+                    // if (pauseTime > 0) {
+                    //     basic.pause(pauseTime)
+                    // }
+
+                    task.handler();
+
+                    let now = input.runningTime();
+
+                    signalTime = now;
+                    channelTime[channel] = now;
+                    outputTime[channel][output] = now;
+
+                    serial.writeNumbers([now])
+                }
+
+                isWorking = false;
+            })
         }
 
-        serial.writeNumbers([time, scheduleTime, input.runningTime()])
+        // let pauseTime = getPauseTime(channel, output)
 
-        handler();
+        // if (pauseTime > 0) {
+        //     basic.pause(pauseTime)
+        // }
 
-        let now = input.runningTime();
+        // serial.writeNumbers([time, scheduleTime, input.runningTime()])
 
-        signalTime = now;
-        channelTime[channel] = now;
-        outputTime[channel][output] = now;
+        // handler();
+
+        // let now = input.runningTime();
+
+        // signalTime = now;
+        // channelTime[channel] = now;
+        // outputTime[channel][output] = now;
     }
 
     // ---
@@ -187,18 +230,21 @@ namespace makerbit {
 
     export function sendPf(): void {
         // // irLed.sendPfDatagram(0, 0, 0, 1, 101);
-        irLed.sendPfDatagram(0, 0, 0, 100, 111);
+        // irLed.sendPfDatagram(0, 0, 0, 100, 111);
         // irLed.sendPfDatagram(0, 0, 0, 101, 111);
         // basic.pause(1000);
         // irLed.sendPfDatagram(0, 0, 0, 100, 1000);
         // irLed.sendPfDatagram(0, 0, 0, 101, 1000);
         // // irLed.sendPf(0, 0, 0, 1, 101);
-
-        // schedule(0, 0, () => irLed.sendPfDatagram(0, 0, 0, 100, 111))
-        // schedule(0, 1, () => irLed.sendPfDatagram(0, 0, 0, 101, 111))
-        // basic.pause(1000);
-        // schedule(0, 0, () => irLed.sendPfDatagram(0, 0, 0, 100, 1000))
-        // schedule(0, 1, () => irLed.sendPfDatagram(0, 0, 0, 101, 1000))
+        for (let i=0; i<=3; i++){
+            schedule(0, 0, () => irLed.sendPfDatagram(0, 0, 0, 100, 111))
+            schedule(0, 1, () => irLed.sendPfDatagram(0, 0, 0, 101, 111))
+        }
+        basic.pause(1000);
+        for (let i=0; i<=3; i++){
+            schedule(0, 0, () => irLed.sendPfDatagram(0, 0, 0, 100, 1000))
+            schedule(0, 1, () => irLed.sendPfDatagram(0, 0, 0, 101, 1000))
+        }
     }
 }
 
