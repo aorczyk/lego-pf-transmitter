@@ -7,9 +7,8 @@
 /**
  * MakerBit
  */
-//% color=#0fbc11 icon="\u272a" block="MakerBit"
-//% category="MakerBit"
-namespace makerbit {
+//% color=#0fbc11 icon="\u272a" block="PF Transmitter"
+namespace pfTransmitter {
     let irLed: InfraredLed;
     export let debug: boolean = false;
 
@@ -35,7 +34,7 @@ namespace makerbit {
     class InfraredLed {
         private pin: AnalogPin;
         private waitCorrection: number;
-        private toggleBit: number;
+        private toggleByChannel: number[] = [1, 1, 1, 1];
         private messageLength: number;
 
         constructor(pin: AnalogPin) {
@@ -69,7 +68,7 @@ namespace makerbit {
             control.waitMicros(lowMicros);
         }
 
-        public sendPfDatagram(esc: number, channel: number, address: number, mode: number, data: number): void {
+        public sendDatagram(esc: number, channel: number, address: number, mode: number, data: number): void {
             esc = bin_to_dec(esc);
             channel = bin_to_dec(channel);
             address = bin_to_dec(address);
@@ -77,8 +76,9 @@ namespace makerbit {
             data = bin_to_dec(data);
 
             this.messageLength = 0;
+            this.toggleByChannel[channel] = 1 - this.toggleByChannel[channel];
 
-            let nibble1 = (this.toggleBit << 3) | (esc << 2) | channel;
+            let nibble1 = (this.toggleByChannel[channel] << 3) | (esc << 2) | channel;
             let nibble2 = (address << 3) | mode;
             let lrc = 15 ^ nibble1 ^ nibble2 ^ data;
 
@@ -105,53 +105,24 @@ namespace makerbit {
 
             this.transmitBit(PF_MARK_BIT, PF_START_BIT);
 
-            // let pasue = Math.floor(4 * this.messageLength / 1000);
-            // basic.pause(pasue)
-
             if (debug) {
                 serial.writeNumbers([this.messageLength / 1000, (input.runningTimeMicros() - start) / 1000])
-
-                // console.log(JSON.stringify(splitToBulks(bits, 4)))
-                // console.log(this.messageLength / 1000)
-                // console.log((input.runningTimeMicros() - start) / 1000)
+                serial.writeString(JSON.stringify(splitToBulks(bits, 4)) + "\n")
             }
         }
     }
 
-    // --- Scheduler ---
+    // --- Command sender ---
+    // To achieve greater parallelization of signals, mixes ir signals when more than one command is run one by one.
+    
+    let isWorking: boolean = false;
+    let tasks: task[] = [];
+    let tasksTypes: number[] = [];
 
-    // --- IR signal delays ---
-    // Minimal delay every ir signal
-    export let signalDelay: number = 20;
-    // Minimal delay every signal to specified channel
-    export let channelDelay: number = 20;
-    // Minimal delay every signal to specified channel output (red or blue)
-    export let outputDelay: number = 600;
-
-    let signalTime: number = 0;
-    let channelTime: number[] = [0, 0, 0, 0];
-    let outputTime: number[][] = [
-        [0, 0],
-        [0, 0],
-        [0, 0],
-        [0, 0],
-    ];
-
-    function compareNumbers(a: number, b: number) {
-        return b - a
-    }
-
-    function getPauseTime(channel: number, output: number): number{
-        let time = input.runningTime();
-
-        let scheduleTime = [
-            // signalTime + signalDelay,
-            channelTime[channel] + channelDelay,
-            outputTime[channel][output] + outputDelay,
-            time
-        ].sort(compareNumbers)[0];
-
-        return scheduleTime - time;
+    function getRandomInt(min: number, max: number) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     interface task {
@@ -160,55 +131,32 @@ namespace makerbit {
         handler: () => void;
     }
 
-    let isWorking: boolean = false;
-    let tasks: task[] = [];
+    function send(channel: number, output: number, handler: () => void) {
+        let taskType = channel << 1 | output;
 
-    function schedule(channel: number, output: number, handler: () => void) {
-        tasks.push({channel: channel, output: output, handler: handler})
-        
+        while (tasksTypes.indexOf(taskType) != -1){
+            basic.pause(20)
+        }
+
+        for (let i = 0; i <= 3; i++) {
+            tasks.push({ channel: channel, output: output, handler: handler})
+            tasksTypes.push(taskType);
+        }
+
         if (!isWorking){
             isWorking = true;
 
             control.inBackground(function() {
                 while(tasks.length > 0){
-                    let task = tasks.shift();
-
-                    // let pauseTime = getPauseTime(task.channel, task.output)
-
-                    // if (pauseTime > 0) {
-                    //     basic.pause(pauseTime)
-                    // }
-
+                    let i = getRandomInt(0, tasks.length - 1);
+                    let task = tasks[i];
+                    tasks.splice(i, 1);
+                    tasksTypes.splice(i, 1);
                     task.handler();
-
-                    let now = input.runningTime();
-
-                    signalTime = now;
-                    channelTime[channel] = now;
-                    outputTime[channel][output] = now;
-
-                    serial.writeNumbers([now])
                 }
-
                 isWorking = false;
             })
         }
-
-        // let pauseTime = getPauseTime(channel, output)
-
-        // if (pauseTime > 0) {
-        //     basic.pause(pauseTime)
-        // }
-
-        // serial.writeNumbers([time, scheduleTime, input.runningTime()])
-
-        // handler();
-
-        // let now = input.runningTime();
-
-        // signalTime = now;
-        // channelTime[channel] = now;
-        // outputTime[channel][output] = now;
     }
 
     // ---
@@ -229,28 +177,31 @@ namespace makerbit {
     }
 
     export function sendPf(): void {
-        // // irLed.sendPfDatagram(0, 0, 0, 1, 101);
-        // irLed.sendPfDatagram(0, 0, 0, 100, 111);
-        // irLed.sendPfDatagram(0, 0, 0, 101, 111);
+        // // irLed.sendDatagram(0, 0, 0, 1, 101);
+        // irLed.sendDatagram(0, 0, 0, 100, 111);
+        // irLed.sendDatagram(0, 0, 0, 101, 111);
         // basic.pause(1000);
-        // irLed.sendPfDatagram(0, 0, 0, 100, 1000);
-        // irLed.sendPfDatagram(0, 0, 0, 101, 1000);
+        // irLed.sendDatagram(0, 0, 0, 100, 1000);
+        // irLed.sendDatagram(0, 0, 0, 101, 1000);
         // // irLed.sendPf(0, 0, 0, 1, 101);
-        for (let i=0; i<=3; i++){
-            schedule(0, 0, () => irLed.sendPfDatagram(0, 0, 0, 100, 111))
-            schedule(0, 1, () => irLed.sendPfDatagram(0, 0, 0, 101, 111))
-        }
-        basic.pause(1000);
-        for (let i=0; i<=3; i++){
-            schedule(0, 0, () => irLed.sendPfDatagram(0, 0, 0, 100, 1000))
-            schedule(0, 1, () => irLed.sendPfDatagram(0, 0, 0, 101, 1000))
-        }
+
+        send(0, 0, () => irLed.sendDatagram(0, 0, 0, 100, 111))
+        send(0, 1, () => irLed.sendDatagram(0, 0, 0, 101, 111))
+        // schedule(1, 0, () => irLed.sendDatagram(0, 1, 0, 100, 111))
+        // schedule(1, 1, () => irLed.sendDatagram(0, 1, 0, 101, 111))
+        // schedule(0, 0, () => irLed.sendDatagram(0, 0, 0, 100, 1000))
+
+        basic.pause(500);
+
+        send(0, 0, () => irLed.sendDatagram(0, 0, 0, 100, 1000))
+        send(0, 1, () => irLed.sendDatagram(0, 0, 0, 101, 1000))
+
     }
 }
 
-makerbit.connectIrSenderLed(AnalogPin.P0)
-makerbit.debug = true;
+pfTransmitter.connectIrSenderLed(AnalogPin.P0)
+pfTransmitter.debug = true;
 
 input.onButtonPressed(Button.A, function () {
-    makerbit.sendPf()
+    pfTransmitter.sendPf()
 })
