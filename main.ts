@@ -178,16 +178,21 @@ namespace pfTransmitter {
         irLed = new InfraredLed(pin);
     }
 
-    export function speedRc(channel: number, output: number, command: number){
+    export function singleOutputMode(channel: Channel, output: Output, command: SingleOutput){
+        lastCommand[channel] = null;
         sendMixedPackets(((channel >>> 2) << 8) | command | (output << 4))
     }
 
     let lastCommand: number[] =[0, 0, 0, 0];
 
-    export function rc(channel: number, red: number, blue: number){
+    export function comboDirectMode(channel: Channel, red: ComboDirect, blue: ComboDirect){
         let command: number = (blue << 2) | red;
         let datagram = ((channel >>> 2) << 8) | 0b00010000 | command;
         lastCommand[channel] = command;
+
+        if (command == lastCommand[channel]){
+            return;
+        }
 
         setInterval(()=>{
             if (command == lastCommand[channel]){
@@ -203,7 +208,19 @@ namespace pfTransmitter {
     }
 }
 
-enum speedCommand {
+enum Channel {
+    'Ch_1' = 0,
+    'Ch_2' = 1,
+    'Ch_3' = 2,
+    'Ch_4' = 3,
+}
+
+enum Output {
+    'Red' = 0,
+    'Blue' = 1
+}
+
+enum SingleOutput {
     'Float' = 0b1000000,
     'Forward_1' = 0b1000001,
     'Forward_2' = 0b1000010,
@@ -226,7 +243,7 @@ enum speedCommand {
     'Full_backward' = 0b1100111,
 }
 
-enum rcCommand {
+enum ComboDirect {
     'Float' = 0b00,
     'Forward' = 0b01,
     'Backward' = 0b10,
@@ -237,34 +254,34 @@ pfTransmitter.connectIrSenderLed(AnalogPin.P0)
 pfTransmitter.debug = true;
 
 input.onButtonPressed(Button.A, function () {
-    // pfTransmitter.speedRc(0, 0, speedCommand.Forward_1)
-    // pfTransmitter.speedRc(0, 1, speedCommand.Forward_1)
+    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward_1)
+    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward_1)
     // basic.pause(1000);
-    // pfTransmitter.speedRc(0, 0, speedCommand.Forward_2)
-    // pfTransmitter.speedRc(0, 1, speedCommand.Forward_2)
+    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward_2)
+    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward_2)
     // basic.pause(1000);
-    // pfTransmitter.speedRc(0, 0, speedCommand.Forward_3)
-    // pfTransmitter.speedRc(0, 1, speedCommand.Forward_3)
+    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward_3)
+    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward_3)
     // basic.pause(1000);
-    // pfTransmitter.speedRc(0, 0, speedCommand.Forward_4)
-    // pfTransmitter.speedRc(0, 1, speedCommand.Forward_4)
+    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward_4)
+    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward_4)
     // basic.pause(1000);
-    // pfTransmitter.speedRc(0, 0, speedCommand.Forward_5)
-    // pfTransmitter.speedRc(0, 1, speedCommand.Forward_5)
+    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward_5)
+    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward_5)
     // basic.pause(1000);
-    // pfTransmitter.speedRc(0, 0, speedCommand.Forward_6)
-    // pfTransmitter.speedRc(0, 1, speedCommand.Forward_6)
+    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward_6)
+    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward_6)
     // basic.pause(1000);
-    // pfTransmitter.speedRc(0, 0, speedCommand.Forward_7)
-    // pfTransmitter.speedRc(0, 1, speedCommand.Forward_7)
+    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward_7)
+    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward_7)
     // basic.pause(1000);
-    // pfTransmitter.speedRc(0, 0, speedCommand.Float)
-    // pfTransmitter.speedRc(0, 1, speedCommand.Float)
+    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Float)
+    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Float)
 
-    pfTransmitter.rc(0, rcCommand.Forward, rcCommand.Forward)
+    pfTransmitter.comboDirectMode(0, ComboDirect.Forward, ComboDirect.Forward)
 })
 
 input.onButtonPressed(Button.B, function () {
-    pfTransmitter.rc(0, rcCommand.Float, rcCommand.Float)
-    // pfTransmitter.speedRc(0, 0, speedCommand.Full_backward)
+    pfTransmitter.comboDirectMode(0, ComboDirect.Float, ComboDirect.Float)
+    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Full_backward)
 })
