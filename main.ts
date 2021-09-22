@@ -20,6 +20,18 @@ namespace pfTransmitter {
         return bulks;
     }
 
+    function setInterval(handler: () => {}, time: number){
+        control.runInBackground(function(){
+            while(true){
+                let out = handler();
+                if (out){
+                    break;
+                }
+                basic.pause(time)
+            }
+        })
+    }
+
     class InfraredLed {
         private pin: AnalogPin;
         private waitCorrection: number;
@@ -52,21 +64,21 @@ namespace pfTransmitter {
             control.waitMicros(lowMicros);
         }
 
-        public sendDatagram(esc: number, channel: number, address: number, mode: number, data: number): void {
-            esc = esc;
-            channel = channel;
-            address = address;
-            mode = mode;
-            data = data;
-
+        // 12 bits of datagram
+        public sendCommand(command: number) {
+            let channel = (0b001100000000 & command) >>> 8;
             this.toggleByChannel[channel] = 1 - this.toggleByChannel[channel];
 
-            let nibble1 = (this.toggleByChannel[channel] << 3) | (esc << 2) | channel;
-            let nibble2 = (address << 3) | mode;
-            let lrc = 15 ^ nibble1 ^ nibble2 ^ data;
+            command = (this.toggleByChannel[channel] << 11) | command;
+            let nibble1 = command >>> 8;
+            let nibble2 = (command & 0b000011110000) >>> 4;
+            let nibble3 = (command & 0b000000001111);
+            let lrc = 15 ^ nibble1 ^ nibble2 ^ nibble3;
 
-            let out = (nibble1 << 12) | (nibble2 << 8) | (data << 4) | lrc;
+            this.sendDatagram((command << 4) | lrc)
+        }
 
+        public sendDatagram(datagram: number): void {
             const PF_MARK_BIT = 158;
             const PF_LOW_BIT = 421 - PF_MARK_BIT - this.waitCorrection;
             const PF_HIGH_BIT = 711 - PF_MARK_BIT - this.waitCorrection;
@@ -77,7 +89,7 @@ namespace pfTransmitter {
             this.transmitBit(PF_MARK_BIT, PF_START_BIT);
 
             for (let i = 15; i >= 0; i--){
-                let bit = (out & (1 << i)) === 0 ? 0 : 1;
+                let bit = (datagram & (1 << i)) === 0 ? 0 : 1;
 
                 bits.push(bit);
 
@@ -113,14 +125,14 @@ namespace pfTransmitter {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function sendPacket(esc: number, channel: number, address: number, mode: number, data: number){
+    function sendPacket(command: number){
         for (let i = 0; i <= 3; i++) {
-            irLed.sendDatagram(esc, channel, address, mode, data)
+            irLed.sendCommand(command)
         }
     }
 
-    function sendMixedPackets(esc: number, channel: number, address: number, mode: number, data: number) {
-        let taskType = channel << 1 | (0b001 & mode);
+    function sendMixedPackets(command: number) {
+        let taskType = 0b001100110000 & command;
 
         while (tasksTypes.indexOf(taskType) != -1){
             basic.pause(20)
@@ -128,7 +140,7 @@ namespace pfTransmitter {
 
         for (let i = 0; i <= 3; i++) {
             tasks.push({ handler: () => {
-                irLed.sendDatagram(esc, channel, address, mode, data)
+                irLed.sendCommand(command)
             }})
             tasksTypes.push(taskType);
         }
@@ -167,32 +179,27 @@ namespace pfTransmitter {
     }
 
     export function speedRc(channel: number, output: number, command: number){
-        let data = 0b0001111 & command;
-        let mode = (command >>> 4) | output;
-        sendMixedPackets(0, channel, 0, mode, data)
+        sendMixedPackets(((channel >>> 2) << 8) | command | (output << 4))
     }
 
-    export function sendPf(): void {
-        // // irLed.sendDatagram(0, 0, 0, 1, 101);
-        // irLed.sendDatagram(0, 0, 0, 100, 111);
-        // irLed.sendDatagram(0, 0, 0, 101, 111);
-        // basic.pause(1000);
-        // irLed.sendDatagram(0, 0, 0, 100, 1000);
-        // irLed.sendDatagram(0, 0, 0, 101, 1000);
-        // // irLed.sendPf(0, 0, 0, 1, 101);
+    let lastCommand: number[] =[0, 0, 0, 0];
 
-        sendMixedPackets(0, 0b0, 0, 0b100, 0b111)
-        sendMixedPackets(0, 0b0, 0, 0b101, 0b111)
-        // schedule(1, 0, () => irLed.sendDatagram(0, 0b1, 0, 0b100, 0b111))
-        // schedule(1, 1, () => irLed.sendDatagram(0, 0b1, 0, 0b101, 0b111))
-        // schedule(0, 0, () => irLed.sendDatagram(0, 0b0, 0, 0b100, 0b1000))
+    export function rc(channel: number, red: number, blue: number){
+        let command: number = (blue << 2) | red;
+        let datagram = ((channel >>> 2) << 8) | 0b00010000 | command;
+        lastCommand[channel] = command;
 
-        basic.pause(1000);
-        serial.writeString("--- pause ---\n")
+        setInterval(()=>{
+            if (command == lastCommand[channel]){
+                sendPacket(datagram);
 
-        sendMixedPackets(0, 0, 0, 0b100, 0b1000)
-        sendMixedPackets(0, 0, 0, 0b101, 0b1000)
-
+                if (command == 0){
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        }, 1000)
     }
 }
 
@@ -219,41 +226,45 @@ enum speedCommand {
     'Full_backward' = 0b1100111,
 }
 
+enum rcCommand {
+    'Float' = 0b00,
+    'Forward' = 0b01,
+    'Backward' = 0b10,
+    'Brake_then_float' = 0b11,
+}
+
 pfTransmitter.connectIrSenderLed(AnalogPin.P0)
 pfTransmitter.debug = true;
 
 input.onButtonPressed(Button.A, function () {
-    pfTransmitter.speedRc(0, 0, speedCommand.Forward_1)
-    pfTransmitter.speedRc(0, 1, speedCommand.Forward_1)
-    basic.pause(1000);
-    pfTransmitter.speedRc(0, 0, speedCommand.Forward_2)
-    pfTransmitter.speedRc(0, 1, speedCommand.Forward_2)
-    basic.pause(1000);
-    pfTransmitter.speedRc(0, 0, speedCommand.Forward_3)
-    pfTransmitter.speedRc(0, 1, speedCommand.Forward_3)
-    basic.pause(1000);
-    pfTransmitter.speedRc(0, 0, speedCommand.Forward_4)
-    pfTransmitter.speedRc(0, 1, speedCommand.Forward_4)
-    basic.pause(1000);
-    pfTransmitter.speedRc(0, 0, speedCommand.Forward_5)
-    pfTransmitter.speedRc(0, 1, speedCommand.Forward_5)
-    basic.pause(1000);
-    pfTransmitter.speedRc(0, 0, speedCommand.Forward_6)
-    pfTransmitter.speedRc(0, 1, speedCommand.Forward_6)
-    basic.pause(1000);
-    pfTransmitter.speedRc(0, 0, speedCommand.Forward_7)
-    pfTransmitter.speedRc(0, 1, speedCommand.Forward_7)
-    basic.pause(1000);
-    pfTransmitter.speedRc(0, 0, speedCommand.Float)
-    pfTransmitter.speedRc(0, 1, speedCommand.Float)
-    // pfTransmitter.sendPf()
+    // pfTransmitter.speedRc(0, 0, speedCommand.Forward_1)
+    // pfTransmitter.speedRc(0, 1, speedCommand.Forward_1)
+    // basic.pause(1000);
+    // pfTransmitter.speedRc(0, 0, speedCommand.Forward_2)
+    // pfTransmitter.speedRc(0, 1, speedCommand.Forward_2)
+    // basic.pause(1000);
+    // pfTransmitter.speedRc(0, 0, speedCommand.Forward_3)
+    // pfTransmitter.speedRc(0, 1, speedCommand.Forward_3)
+    // basic.pause(1000);
+    // pfTransmitter.speedRc(0, 0, speedCommand.Forward_4)
+    // pfTransmitter.speedRc(0, 1, speedCommand.Forward_4)
+    // basic.pause(1000);
+    // pfTransmitter.speedRc(0, 0, speedCommand.Forward_5)
+    // pfTransmitter.speedRc(0, 1, speedCommand.Forward_5)
+    // basic.pause(1000);
+    // pfTransmitter.speedRc(0, 0, speedCommand.Forward_6)
+    // pfTransmitter.speedRc(0, 1, speedCommand.Forward_6)
+    // basic.pause(1000);
     // pfTransmitter.speedRc(0, 0, speedCommand.Forward_7)
     // pfTransmitter.speedRc(0, 1, speedCommand.Forward_7)
     // basic.pause(1000);
     // pfTransmitter.speedRc(0, 0, speedCommand.Float)
     // pfTransmitter.speedRc(0, 1, speedCommand.Float)
+
+    pfTransmitter.rc(0, rcCommand.Forward, rcCommand.Forward)
 })
 
 input.onButtonPressed(Button.B, function () {
+    pfTransmitter.rc(0, rcCommand.Float, rcCommand.Float)
     // pfTransmitter.speedRc(0, 0, speedCommand.Full_backward)
 })
