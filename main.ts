@@ -332,39 +332,3 @@ namespace pfTransmitter {
         })
     }
 }
-
-pfTransmitter.connectIrSenderLed(AnalogPin.P0)
-pfTransmitter.debug = true;
-
-input.onButtonPressed(Button.A, function () {
-    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward1)
-    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward1)
-    // basic.pause(1000);
-    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward2)
-    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward2)
-    // basic.pause(1000);
-    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward3)
-    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward3)
-    // basic.pause(1000);
-    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward4)
-    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward4)
-    // basic.pause(1000);
-    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward5)
-    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward5)
-    // basic.pause(1000);
-    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward6)
-    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward6)
-    // basic.pause(1000);
-    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward7)
-    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward7)
-    // basic.pause(1000);
-    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.Float)
-    // pfTransmitter.singleOutputMode(0, 1, SingleOutput.Float)
-
-    pfTransmitter.comboDirectMode(0, ComboDirect.Forward, ComboDirect.Forward)
-})
-
-input.onButtonPressed(Button.B, function () {
-    pfTransmitter.comboDirectMode(0, ComboDirect.Float, ComboDirect.Float)
-    // pfTransmitter.singleOutputMode(0, 0, SingleOutput.FullBackward)
-})
