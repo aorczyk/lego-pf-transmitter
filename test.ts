@@ -1,1 +1,2 @@
-// tu są testy; nie będzie to kompilowane, gdy ten pakiet będzie używany jako rozszerzenie.
+
+// pfTransmitter.comboDirectMode(0, ComboDirect.Float, ComboDirect.Float)

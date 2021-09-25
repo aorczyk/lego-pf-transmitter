@@ -241,31 +241,31 @@ namespace pfTransmitter {
 
     export function singleOutputMode(channel: Channel, output: Output, command: SingleOutput){
         lastCommand[channel] = null;
-        sendMixedPackets(((channel >>> 2) << 8) | command | (output << 4))
+        sendMixedPackets((channel << 8) | command | (output << 4))
     }
 
-    let lastCommand: number[] =[0, 0, 0, 0];
+    let lastCommand: number[] = [0, 0, 0, 0];
 
     export function comboDirectMode(channel: Channel, red: ComboDirect, blue: ComboDirect){
         let command: number = (blue << 2) | red;
-        let datagram = ((channel >>> 2) << 8) | 0b00010000 | command;
-        lastCommand[channel] = command;
+        let datagram = (channel << 8) | 0b00010000 | command;
 
         if (command == lastCommand[channel]){
             return;
         }
 
-        setInterval(()=>{
-            if (command == lastCommand[channel]){
-                sendPacket(datagram);
+        lastCommand[channel] = command;
+        sendPacket(datagram);
 
-                if (command == 0){
-                    return true;
+        if (command != 0) {
+            let iId = control.setInterval(() => {
+                if (command == lastCommand[channel]) {
+                    sendPacket(datagram);
+                } else {
+                    control.clearInterval(iId, control.IntervalMode.Interval)
                 }
-                return false;
-            }
-            return true;
-        }, repeatCommandTime)
+            }, repeatCommandTime, control.IntervalMode.Interval)
+        }
     }
 
     const enum ComboPWM {
@@ -306,29 +306,51 @@ namespace pfTransmitter {
     export function comboPWMMode(channel: Channel, red: ComboPWM, blue: ComboPWM) {
         let command: number = (blue << 4) | red;
         let datagram = ((0b0100 | channel) << 8) | command;
-        lastCommand[channel] = command;
 
         if (command == lastCommand[channel]) {
             return;
         }
 
-        setInterval(() => {
-            if (command == lastCommand[channel]) {
-                sendPacket(datagram);
+        lastCommand[channel] = command;
 
-                if (command == 0) {
-                    return true;
+        sendPacket(datagram);
+
+        if (command != 0) {
+            let iId = control.setInterval(() => {
+                if (command == lastCommand[channel]) {
+                    sendPacket(datagram);
+                } else {
+                    control.clearInterval(iId, control.IntervalMode.Interval)
                 }
-                return false;
-            }
-            return true;
-        }, repeatCommandTime)
+            }, repeatCommandTime, control.IntervalMode.Interval)
+        }
     }
 
     export function play(commands: number[][]){
-        commands.forEach((command: number[]) => {
-            sendPacket(command[0]);
-            basic.pause(command[2])
+        commands.forEach((task) => {
+            let mode = (0b000001110000 & task[0]) >>> 4;
+
+            if (mode == 1){
+                let channel = (0b001100000000 & task[0]) >>> 8;
+                let red = (0b000000000011 & task[0]);
+                let blue = (0b000000001100 & task[0]);
+                comboDirectMode(channel, red, blue)
+            } else {
+                sendPacket(task[0]);
+            }
+            
+            basic.pause(task[2])
         })
     }
 }
+
+pfTransmitter.connectIrSenderLed(AnalogPin.P0)
+// pfTransmitter.debug = true;
+
+input.onButtonPressed(Button.A, function() {
+    pfTransmitter.comboDirectMode(Channel.Channel1, ComboDirect.Forward, ComboDirect.Float)
+    basic.pause(5000);
+    pfTransmitter.comboDirectMode(Channel.Channel1, ComboDirect.Float, ComboDirect.Float)
+    basic.clearScreen();
+})
+
