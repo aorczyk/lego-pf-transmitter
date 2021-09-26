@@ -72,7 +72,7 @@ const enum ComboDirect {
 namespace pfTransmitter {
     let irLed: InfraredLed;
     export let debug: boolean = false;
-    export let repeatCommandTime: number = 1000;
+    export let repeatCommandTime: number = 500;
 
     function splitToBulks(arr: number[], bulkSize = 20) {
         const bulks = [];
@@ -187,9 +187,14 @@ namespace pfTransmitter {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    let packetCommand = null;
     function sendPacket(command: number){
+        packetCommand = command;
         for (let i = 0; i <= 3; i++) {
-            irLed.sendCommand(command)
+            if (packetCommand == command){
+                irLed.sendCommand(command);
+                basic.pause(20);
+            }
         }
     }
 
@@ -255,12 +260,29 @@ namespace pfTransmitter {
         }
 
         lastCommand[channel] = command;
+
+        // setInterval(() => {
+        //     if (command == lastCommand[channel]) {
+        //         sendPacket(datagram);
+        //         serial.writeNumbers([input.runningTime(), command])
+
+        //         if (command == 0){
+        //             return true;
+        //         }
+        //     } else {
+        //         return true;
+        //     }
+        //     return false;
+        // }, repeatCommandTime)
+
+
         sendPacket(datagram);
 
         if (command != 0) {
             let iId = control.setInterval(() => {
                 if (command == lastCommand[channel]) {
                     sendPacket(datagram);
+                    serial.writeNumbers([input.runningTime(), command])
                 } else {
                     control.clearInterval(iId, control.IntervalMode.Interval)
                 }
@@ -328,29 +350,32 @@ namespace pfTransmitter {
 
     export function play(commands: number[][]){
         commands.forEach((task) => {
+            let channel = (0b001100000000 & task[0]) >>> 8;
             let mode = (0b000001110000 & task[0]) >>> 4;
 
             if (mode == 1){
-                let channel = (0b001100000000 & task[0]) >>> 8;
-                let red = (0b000000000011 & task[0]);
-                let blue = (0b000000001100 & task[0]);
+                let red  = (0b000000000011 & task[0]);
+                let blue = (0b000000001100 & task[0]) >>> 2;
                 comboDirectMode(channel, red, blue)
             } else {
-                sendPacket(task[0]);
+                let output = (0b000000110000 & task[0]) >>> 4;
+                let command = (0b000000001111 & task[0]);
+                singleOutputMode(channel, output, command)
             }
             
+            serial.writeNumbers([222, task[0], task[2], input.runningTimeMicros()])
             basic.pause(task[2])
         })
     }
 }
 
-pfTransmitter.connectIrSenderLed(AnalogPin.P0)
-// pfTransmitter.debug = true;
+// pfTransmitter.connectIrSenderLed(AnalogPin.P0)
+// // pfTransmitter.debug = true;
 
-input.onButtonPressed(Button.A, function() {
-    pfTransmitter.comboDirectMode(Channel.Channel1, ComboDirect.Forward, ComboDirect.Float)
-    basic.pause(5000);
-    pfTransmitter.comboDirectMode(Channel.Channel1, ComboDirect.Float, ComboDirect.Float)
-    basic.clearScreen();
-})
+// input.onButtonPressed(Button.A, function() {
+//    pfTransmitter.comboDirectMode(Channel.Channel1, ComboDirect.Forward, ComboDirect.Float)
+//    basic.pause(200);
+//    pfTransmitter.comboDirectMode(Channel.Channel1, ComboDirect.Float, ComboDirect.Float)
+// //    basic.clearScreen();
+// })
 
