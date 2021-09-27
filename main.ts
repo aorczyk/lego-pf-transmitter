@@ -238,8 +238,12 @@ namespace pfTransmitter {
         return (toggleByChannel[channel] << 11) | command;
     }
 
-    let packetCommand = null;
+    let packetCommand: number = null;
     function sendPacket(command: number){
+        // while (packetCommand !== null){
+        //     basic.pause(20)
+        // }
+        
         command = addToggle(command);
         packetCommand = command;
         
@@ -249,12 +253,13 @@ namespace pfTransmitter {
                 basic.pause(20);
             }
         }
+
+        packetCommand = null
     }
 
     function sendMixedPackets(command: number) {
-        command = addToggle(command);
-
         let taskType = 0b001100110000 & command;
+        command = addToggle(command);
 
         while (tasksTypes.indexOf(taskType) != -1){
             basic.pause(20)
