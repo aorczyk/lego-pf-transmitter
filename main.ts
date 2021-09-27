@@ -246,7 +246,7 @@ namespace pfTransmitter {
         for (let i = 0; i <= 3; i++) {
             // if (packetCommand == command){
                 irLed.sendCommand(command);
-                // basic.pause(20);
+                basic.pause(20);
             // }
         }
     }
