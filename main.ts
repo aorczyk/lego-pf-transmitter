@@ -32,7 +32,7 @@ const enum SingleOutput {
     //% block="Forward 7"
     Forward7 = 0b1000111,
     //% block="Brake then float"
-    BrakeThenFloat = 0b1000111,
+    BrakeThenFloat = 0b1001000,
     //% block="Backward 7"
     Backward7 = 0b1001001,
     //% block="Backward 6"
@@ -47,14 +47,44 @@ const enum SingleOutput {
     Backward2 = 0b1001110,
     //% block="Backward 1"
     Backward1 = 0b1001111,
-    //% block="Increment PWM"
+
+    //% block="Increment"
     IncrementPWM = 0b1100100,
-    //% block="Decrement PWM"
+    //% block="Decrement"
     DecrementPWM = 0b1100101,
     //% block="Full forward"
     FullForward = 0b1100110,
     //% block="Full backward"
     FullBackward = 0b1100111,
+
+    //% block="Toggle full forward/backward (default forward)"
+    ToggleFullForwardBackward = 0b1101000,
+
+    //% block="Toggle full forward (Stop → Fw, Fw → Stop, Bw → Fw)"
+    ToggleFullForward = 0b1100000,
+    //% block="Toggle full backward (Stop → Bw, Bw → Stop, Fwd → Bw)"
+    ToggleFullBackward = 0b1101111,
+
+    //% block="Toggle direction"
+    ToggleDirection = 0b1100001,
+    //% block="Increment Numerical PWM"
+    IncrementNumericalPWM = 0b1100010,
+    //% block="Decrement Numerical PWM"
+    DecrementNumericalPWM = 0b1100011,
+    
+    //% block="Clear C1 (negative logic – C1 high)"
+    ClearC1 = 0b1101001,
+    //% block="Set C1 (negative logic – C1 low)"
+    SetC1 = 0b1101010,
+    //% block="Toggle C1"
+    ToggleC1 = 0b1101011,
+
+    //% block="Clear C2 (negative logic – C2 high)"
+    ClearC2 = 0b1101100,
+    //% block="Set C2 (negative logic – C2 low)"
+    SetC2 = 0b1101101,
+    //% block="Toggle C2"
+    ToggleC2 = 0b1101110,
 }
 
 const enum ComboDirect {
@@ -68,31 +98,46 @@ const enum ComboDirect {
     BrakeThenFloat = 0b11,
 }
 
+const enum ComboPWM {
+    //% block="Float"
+    Float = 0b0000,
+    //% block="Forward 1"
+    Forward1 = 0b0001,
+    //% block="Forward 2"
+    Forward2 = 0b0010,
+    //% block="Forward 3"
+    Forward3 = 0b0011,
+    //% block="Forward 4"
+    Forward4 = 0b0100,
+    //% block="Forward 5"
+    Forward5 = 0b0101,
+    //% block="Forward 6"
+    Forward6 = 0b0110,
+    //% block="Forward 7"
+    Forward7 = 0b0111,
+    //% block="Brake then float"
+    BrakeThenFloat = 0b1000,
+    //% block="Backward 7"
+    Backward7 = 0b1001,
+    //% block="Backward 6"
+    Backward6 = 0b1010,
+    //% block="Backward 5"
+    Backward5 = 0b1011,
+    //% block="Backward 4"
+    Backward4 = 0b1100,
+    //% block="Backward 3"
+    Backward3 = 0b1101,
+    //% block="Backward 2"
+    Backward2 = 0b1110,
+    //% block="Backward 1"
+    Backward1 = 0b1111,
+}
+
 //% color=#f68420 icon="\uf1eb" block="PF Transmitter"
 namespace pfTransmitter {
     let irLed: InfraredLed;
     export let debug: boolean = false;
     export let repeatCommandTime: number = 500;
-
-    function splitToBulks(arr: number[], bulkSize = 20) {
-        const bulks = [];
-        for (let i = 0; i < Math.ceil(arr.length / bulkSize); i++) {
-            bulks.push(arr.slice(i * bulkSize, (i + 1) * bulkSize));
-        }
-        return bulks;
-    }
-
-    function setInterval(handler: () => {}, time: number){
-        control.runInBackground(function(){
-            while(true){
-                let out = handler();
-                if (out){
-                    break;
-                }
-                basic.pause(time)
-            }
-        })
-    }
 
     class InfraredLed {
         private pin: AnalogPin;
@@ -146,14 +191,17 @@ namespace pfTransmitter {
             const PF_HIGH_BIT = 711 - PF_MARK_BIT - this.waitCorrection;
             const PF_START_BIT = 1184 - PF_MARK_BIT - this.waitCorrection;
 
-            let bits = [];
+            let bits = '';
 
             this.transmitBit(PF_MARK_BIT, PF_START_BIT);
 
             for (let i = 15; i >= 0; i--){
                 let bit = (datagram & (1 << i)) === 0 ? 0 : 1;
 
-                bits.push(bit);
+                bits += bit;
+                if (i > 0 && i % 4 == 0){
+                    bits += '-';
+                }
 
                 if (bit == 0) {
                     this.transmitBit(PF_MARK_BIT, PF_LOW_BIT);
@@ -165,7 +213,7 @@ namespace pfTransmitter {
             this.transmitBit(PF_MARK_BIT, PF_START_BIT);
 
             if (debug) {
-                serial.writeString(JSON.stringify(splitToBulks(bits, 4)) + "\n")
+                serial.writeString(bits + "\n")
             }
         }
     }
@@ -208,6 +256,7 @@ namespace pfTransmitter {
         for (let i = 0; i <= 3; i++) {
             tasks.push({ handler: () => {
                 irLed.sendCommand(command)
+                basic.pause(20)
             }})
             tasksTypes.push(taskType);
         }
@@ -244,6 +293,12 @@ namespace pfTransmitter {
         irLed = new InfraredLed(pin);
     }
 
+    /**
+     * Single output mode - speed remote control.
+     */
+    //% blockId="pf_transmitter_single_output_mode"
+    //% block="speed rc channel %channel output %output command %command"
+    //% weight=80
     export function singleOutputMode(channel: Channel, output: Output, command: SingleOutput){
         lastCommand[channel] = null;
         sendMixedPackets((channel << 8) | command | (output << 4))
@@ -251,6 +306,12 @@ namespace pfTransmitter {
 
     let lastCommand: number[] = [0, 0, 0, 0];
 
+    /**
+     * Combo direct mode - remote control.
+     */
+    //% blockId="pf_transmitter_combo_direct_mode"
+    //% block="rc channel %channel red %red blue %blue"
+    //% weight=70
     export function comboDirectMode(channel: Channel, red: ComboDirect, blue: ComboDirect){
         let command: number = (blue << 2) | red;
         let datagram = (channel << 8) | 0b00010000 | command;
@@ -261,28 +322,12 @@ namespace pfTransmitter {
 
         lastCommand[channel] = command;
 
-        // setInterval(() => {
-        //     if (command == lastCommand[channel]) {
-        //         sendPacket(datagram);
-        //         serial.writeNumbers([input.runningTime(), command])
-
-        //         if (command == 0){
-        //             return true;
-        //         }
-        //     } else {
-        //         return true;
-        //     }
-        //     return false;
-        // }, repeatCommandTime)
-
-
         sendPacket(datagram);
 
         if (command != 0) {
             let iId = control.setInterval(() => {
                 if (command == lastCommand[channel]) {
                     sendPacket(datagram);
-                    serial.writeNumbers([input.runningTime(), command])
                 } else {
                     control.clearInterval(iId, control.IntervalMode.Interval)
                 }
@@ -290,41 +335,12 @@ namespace pfTransmitter {
         }
     }
 
-    const enum ComboPWM {
-        //% block="Float"
-        Float = 0b0000,
-        //% block="Forward 1"
-        Forward1 = 0b0001,
-        //% block="Forward 2"
-        Forward2 = 0b0010,
-        //% block="Forward 3"
-        Forward3 = 0b0011,
-        //% block="Forward 4"
-        Forward4 = 0b0100,
-        //% block="Forward 5"
-        Forward5 = 0b0101,
-        //% block="Forward 6"
-        Forward6 = 0b0110,
-        //% block="Forward 7"
-        Forward7 = 0b0111,
-        //% block="Brake then float"
-        BrakeThenFloat = 0b1000,
-        //% block="Backward 7"
-        Backward7 = 0b1001,
-        //% block="Backward 6"
-        Backward6 = 0b1010,
-        //% block="Backward 5"
-        Backward5 = 0b1011,
-        //% block="Backward 4"
-        Backward4 = 0b1100,
-        //% block="Backward 3"
-        Backward3 = 0b1101,
-        //% block="Backward 2"
-        Backward2 = 0b1110,
-        //% block="Backward 1"
-        Backward1 = 0b1111,
-    }
-
+    /**
+     * Combo PWM mode.
+     */
+    //% blockId="pf_transmitter_combo_pwm_mode"
+    //% block="rc channel %channel red %red blue %blue"
+    //% weight=60
     export function comboPWMMode(channel: Channel, red: ComboPWM, blue: ComboPWM) {
         let command: number = (blue << 4) | red;
         let datagram = ((0b0100 | channel) << 8) | command;
@@ -348,6 +364,12 @@ namespace pfTransmitter {
         }
     }
 
+    /**
+     * Plays commands recorded by PF Receiver recorder.
+     */
+    //% blockId="pf_transmitter_play"
+    //% block="play commands %commands"
+    //% weight=50
     export function play(commands: number[][]){
         commands.forEach((task) => {
             let channel = (0b001100000000 & task[0]) >>> 8;
@@ -358,24 +380,12 @@ namespace pfTransmitter {
                 let blue = (0b000000001100 & task[0]) >>> 2;
                 comboDirectMode(channel, red, blue)
             } else {
-                let output = (0b000000110000 & task[0]) >>> 4;
-                let command = (0b000000001111 & task[0]);
-                singleOutputMode(channel, output, command)
+                let command = (0b000001111111 & task[0]);
+                singleOutputMode(channel, 0, command)
             }
             
-            serial.writeNumbers([222, task[0], task[2], input.runningTimeMicros()])
+            serial.writeNumbers([222, task[0], task[2], channel, input.runningTimeMicros()])
             basic.pause(task[2])
         })
     }
 }
-
-// pfTransmitter.connectIrSenderLed(AnalogPin.P0)
-// // pfTransmitter.debug = true;
-
-// input.onButtonPressed(Button.A, function() {
-//    pfTransmitter.comboDirectMode(Channel.Channel1, ComboDirect.Forward, ComboDirect.Float)
-//    basic.pause(200);
-//    pfTransmitter.comboDirectMode(Channel.Channel1, ComboDirect.Float, ComboDirect.Float)
-// //    basic.clearScreen();
-// })
-
