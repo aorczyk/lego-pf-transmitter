@@ -394,7 +394,8 @@ namespace pfTransmitter {
                 comboDirectMode(channel, red, blue)
             } else {
                 let command = (0b000001111111 & task[0]);
-                singleOutputMode(channel, 0, command)
+                // singleOutputMode(channel, 0, command)
+                sendPacket(task[0]);
             }
             
             serial.writeNumbers([222, task[0], task[2], channel, input.runningTimeMicros()])
