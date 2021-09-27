@@ -136,13 +136,13 @@ const enum ComboPWM {
 //% color=#f68420 icon="\uf1eb" block="PF Transmitter"
 namespace pfTransmitter {
     let irLed: InfraredLed;
-    export let debug: boolean = false;
     export let repeatCommandTime: number = 500;
+    let toggleByChannel: number[] = [1, 1, 1, 1];
 
     class InfraredLed {
         private pin: AnalogPin;
         private waitCorrection: number;
-        private toggleByChannel: number[] = [1, 1, 1, 1];
+        public debug: boolean = false;
 
         constructor(pin: AnalogPin) {
             this.pin = pin;
@@ -173,10 +173,6 @@ namespace pfTransmitter {
 
         // 12 bits of datagram
         public sendCommand(command: number) {
-            let channel = (0b001100000000 & command) >>> 8;
-            this.toggleByChannel[channel] = 1 - this.toggleByChannel[channel];
-
-            command = (this.toggleByChannel[channel] << 11) | command;
             let nibble1 = command >>> 8;
             let nibble2 = (command & 0b000011110000) >>> 4;
             let nibble3 = (command & 0b000000001111);
@@ -212,7 +208,7 @@ namespace pfTransmitter {
 
             this.transmitBit(PF_MARK_BIT, PF_START_BIT);
 
-            if (debug) {
+            if (this.debug) {
                 serial.writeString(bits + "\n")
             }
         }
@@ -234,19 +230,30 @@ namespace pfTransmitter {
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
+    
+    function addToggle(command: number){
+        let channel = (0b001100000000 & command) >>> 8;
+        toggleByChannel[channel] = 1 - toggleByChannel[channel];
+
+        return (toggleByChannel[channel] << 11) | command;
+    }
 
     let packetCommand = null;
     function sendPacket(command: number){
+        command = addToggle(command);
         packetCommand = command;
+        
         for (let i = 0; i <= 3; i++) {
-            if (packetCommand == command){
+            // if (packetCommand == command){
                 irLed.sendCommand(command);
-                basic.pause(20);
-            }
+                // basic.pause(20);
+            // }
         }
     }
 
     function sendMixedPackets(command: number) {
+        command = addToggle(command);
+
         let taskType = 0b001100110000 & command;
 
         while (tasksTypes.indexOf(taskType) != -1){
@@ -289,8 +296,9 @@ namespace pfTransmitter {
     //% pin.fieldOptions.columns=4
     //% pin.fieldOptions.tooltips="false"
     //% weight=90
-    export function connectIrSenderLed(pin: AnalogPin): void {
+    export function connectIrSenderLed(pin: AnalogPin, debug = false): void {
         irLed = new InfraredLed(pin);
+        irLed.debug = debug
     }
 
     /**
