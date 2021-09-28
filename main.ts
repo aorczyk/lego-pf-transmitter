@@ -136,8 +136,8 @@ const enum ComboPWM {
 //% color=#f68420 icon="\uf1eb" block="PF Transmitter"
 namespace pfTransmitter {
     let irLed: InfraredLed;
-    export let repeatCommandTime: number = 500;
     let toggleByChannel: number[] = [1, 1, 1, 1];
+    export let repeatCommandTime: number = 500;
 
     class InfraredLed {
         private pin: AnalogPin;
@@ -194,10 +194,7 @@ namespace pfTransmitter {
             for (let i = 15; i >= 0; i--){
                 let bit = (datagram & (1 << i)) === 0 ? 0 : 1;
 
-                bits += bit;
-                if (i > 0 && i % 4 == 0){
-                    bits += '-';
-                }
+                bits += (i > 0 && i % 4 == 0) ? bit + '-' : bit;
 
                 if (bit == 0) {
                     this.transmitBit(PF_MARK_BIT, PF_LOW_BIT);
@@ -219,6 +216,7 @@ namespace pfTransmitter {
     
     interface task {
         handler: () => void;
+        type: number;
     }
 
     let isWorking: boolean = false;
@@ -238,39 +236,24 @@ namespace pfTransmitter {
         return (toggleByChannel[channel] << 11) | command;
     }
 
-    let packetCommand: number = null;
-    function sendPacket(command: number){
-        // while (packetCommand !== null){
-        //     basic.pause(20)
-        // }
-        
-        command = addToggle(command);
-        packetCommand = command;
-        
-        for (let i = 0; i <= 3; i++) {
-            if (packetCommand == command){
-                irLed.sendCommand(command);
-                basic.pause(20);
-            }
-        }
-
-        packetCommand = null
-    }
-
-    function sendMixedPackets(command: number) {
+    function sendPacket(command: number, mixDatagrams: boolean = false) {
         let taskType = 0b001100110000 & command;
         command = addToggle(command);
 
-        while (tasksTypes.indexOf(taskType) != -1){
-            basic.pause(20)
+        if (mixDatagrams){
+            // Prevents from mixing two commands to the same output ex. start and stop.
+            while (tasks.filter(x => { return x.type == taskType}).length > 0) {
+                basic.pause(20)
+            }
         }
 
         for (let i = 0; i <= 3; i++) {
-            tasks.push({ handler: () => {
-                irLed.sendCommand(command)
-                basic.pause(20)
-            }})
-            tasksTypes.push(taskType);
+            tasks.push({
+                handler: () => {
+                    irLed.sendCommand(command)
+                }, 
+                type: taskType
+            })
         }
 
         if (!isWorking){
@@ -278,11 +261,13 @@ namespace pfTransmitter {
 
             control.inBackground(function() {
                 while(tasks.length > 0){
-                    let i = getRandomInt(0, tasks.length - 1);
-                    let task = tasks[i];
+                    let i = 0;
+                    if (mixDatagrams) {
+                        i = getRandomInt(0, tasks.length - 1);
+                    }
+                    tasks[i].handler();
                     tasks.splice(i, 1);
-                    tasksTypes.splice(i, 1);
-                    task.handler();
+                    basic.pause(20)
                 }
                 isWorking = false;
             })
@@ -314,7 +299,13 @@ namespace pfTransmitter {
     //% weight=80
     export function singleOutputMode(channel: Channel, output: Output, command: SingleOutput){
         lastCommand[channel] = null;
-        sendMixedPackets((channel << 8) | command | (output << 4))
+        let mixDatagrams = true;
+
+        if ([0b1100100, 0b1100101].some(x => x == command)){
+            mixDatagrams = false
+        }
+
+        sendPacket((channel << 8) | command | (output << 4), mixDatagrams)
     }
 
     let lastCommand: number[] = [0, 0, 0, 0];
@@ -394,12 +385,15 @@ namespace pfTransmitter {
                 comboDirectMode(channel, red, blue)
             } else {
                 let command = (0b000001111111 & task[0]);
-                // singleOutputMode(channel, 0, command)
-                sendPacket(task[0]);
+                singleOutputMode(channel, 0, command)
+                // sendPacket(task[0]);
             }
             
-            serial.writeNumbers([222, task[0], task[2], channel, input.runningTimeMicros()])
+            // irLed.sendCommand(task[0])
+
+            serial.writeNumbers([222, task[0], task[2], input.runningTimeMicros()])
             basic.pause(task[2])
+            // control.waitMicros(task[2])
         })
     }
 }
