@@ -137,6 +137,10 @@ const enum ComboPWM {
 namespace pfTransmitter {
     let irLed: InfraredLed;
     let toggleByChannel: number[] = [1, 1, 1, 1];
+    let schedulerIsWorking: boolean = false;
+    let tasks: task[] = [];
+    let tasksTypes: number[] = [];
+    let lastCommand: number[] = [0, 0, 0, 0];
     export let repeatCommandTime: number = 500;
 
     class InfraredLed {
@@ -219,10 +223,6 @@ namespace pfTransmitter {
         type: number;
     }
 
-    let isWorking: boolean = false;
-    let tasks: task[] = [];
-    let tasksTypes: number[] = [];
-
     function getRandomInt(min: number, max: number) {
         min = Math.ceil(min);
         max = Math.floor(max);
@@ -256,8 +256,8 @@ namespace pfTransmitter {
             })
         }
 
-        if (!isWorking){
-            isWorking = true;
+        if (!schedulerIsWorking){
+            schedulerIsWorking = true;
 
             control.inBackground(function() {
                 while(tasks.length > 0){
@@ -269,7 +269,7 @@ namespace pfTransmitter {
                     tasks.splice(i, 1);
                     basic.pause(20)
                 }
-                isWorking = false;
+                schedulerIsWorking = false;
             })
         }
     }
@@ -308,7 +308,6 @@ namespace pfTransmitter {
         sendPacket((channel << 8) | command | (output << 4), mixDatagrams)
     }
 
-    let lastCommand: number[] = [0, 0, 0, 0];
 
     /**
      * Combo direct mode - remote control.
@@ -329,7 +328,8 @@ namespace pfTransmitter {
         sendPacket(datagram);
 
         if (command != 0) {
-            let iId = control.setInterval(() => {
+            let iId: number = null;
+            iId = control.setInterval(() => {
                 if (command == lastCommand[channel]) {
                     sendPacket(datagram);
                 } else {
@@ -358,7 +358,8 @@ namespace pfTransmitter {
         sendPacket(datagram);
 
         if (command != 0) {
-            let iId = control.setInterval(() => {
+            let iId: number = null;
+            iId = control.setInterval(() => {
                 if (command == lastCommand[channel]) {
                     sendPacket(datagram);
                 } else {
@@ -376,6 +377,7 @@ namespace pfTransmitter {
     //% weight=50
     export function play(commands: number[][]){
         commands.forEach((task) => {
+            let start = input.runningTime();
             let channel = (0b001100000000 & task[0]) >>> 8;
             let mode = (0b000001110000 & task[0]) >>> 4;
 
@@ -386,14 +388,9 @@ namespace pfTransmitter {
             } else {
                 let command = (0b000001111111 & task[0]);
                 singleOutputMode(channel, 0, command)
-                // sendPacket(task[0]);
             }
             
-            // irLed.sendCommand(task[0])
-
-            serial.writeNumbers([222, task[0], task[2], input.runningTimeMicros()])
-            basic.pause(task[2])
-            // control.waitMicros(task[2])
+            basic.pause(task[2] - (input.runningTime() - start))
         })
     }
 }
