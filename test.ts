@@ -10,7 +10,7 @@ basic.showNumber(test)
 // 2. singleOutputMode - on off.
 // 3. comboDirectMode - on off.
 // 4. comboDirectMode - hold command for 10s (auto repeat).
-// 4. comboPWMMode - hold command for 10s (auto repeat).
+// 5. comboPWMMode - hold command for 10s (auto repeat).
 
 input.onButtonPressed(Button.AB, function () {
     test += 1;
@@ -24,34 +24,34 @@ input.onButtonPressed(Button.AB, function () {
 
 input.onButtonPressed(Button.A, function () {
     if (test == 0){
-        pfTransmitter.singleOutputMode(0, 0, SingleOutput.IncrementPWM)
-        pfTransmitter.singleOutputMode(0, 1, SingleOutput.IncrementPWM)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.IncrementPWM)
+        pfTransmitter.singleOutputMode(0, 1, PfSingleOutput.IncrementPWM)
     } else if (test == 1){
-        pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward7)
-        pfTransmitter.singleOutputMode(0, 1, SingleOutput.Forward7)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Forward7)
+        pfTransmitter.singleOutputMode(0, 1, PfSingleOutput.Forward7)
     } else if (test == 2) {
-        pfTransmitter.singleOutputMode(0, 0, SingleOutput.Forward7)
-        pfTransmitter.singleOutputMode(0, 0, SingleOutput.Float)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Forward7)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
     } else if (test == 3) {
-        pfTransmitter.comboDirectMode(Channel.Channel1, ComboDirect.Forward, ComboDirect.Float)
-        pfTransmitter.comboDirectMode(Channel.Channel1, ComboDirect.Float, ComboDirect.Float)
+        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Forward, PfComboDirect.Float)
+        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Float, PfComboDirect.Float)
     } else if (test == 4) {
-        pfTransmitter.comboDirectMode(Channel.Channel1, ComboDirect.Forward, ComboDirect.Float)
+        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Forward, PfComboDirect.Float)
         basic.pause(10000)
-        pfTransmitter.comboDirectMode(Channel.Channel1, ComboDirect.Float, ComboDirect.Float)
+        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Float, PfComboDirect.Float)
     } else if (test == 5) {
-        pfTransmitter.comboPWMMode(Channel.Channel1, ComboPWM.Forward3, ComboPWM.Forward7)
+        pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Forward3, PfComboPWM.Forward7)
         basic.pause(10000)
-        pfTransmitter.comboPWMMode(Channel.Channel1, ComboPWM.Float, ComboPWM.Float)
+        pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Float, PfComboPWM.Float)
     }
 })
 
 input.onButtonPressed(Button.B, function () {
     if (test == 0) {
-        pfTransmitter.singleOutputMode(0, 0, SingleOutput.DecrementPWM)
-        pfTransmitter.singleOutputMode(0, 1, SingleOutput.DecrementPWM)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.DecrementPWM)
+        pfTransmitter.singleOutputMode(0, 1, PfSingleOutput.DecrementPWM)
     } else if (test == 1) {
-        pfTransmitter.singleOutputMode(0, 0, SingleOutput.Float)
-        pfTransmitter.singleOutputMode(0, 1, SingleOutput.Float)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
+        pfTransmitter.singleOutputMode(0, 1, PfSingleOutput.Float)
     }
 })

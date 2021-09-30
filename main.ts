@@ -1,4 +1,13 @@
-const enum Channel {
+/**
+ * Power Functions Transmitter - programmable remote control.
+ * Sends commands to LEGO Power Functions infrared receiver.
+ * 
+ * LEGO Power Functions RC documentation: https://www.philohome.com/pf/LEGO_Power_Functions_RC.pdf
+ * 
+ * (c) 2021, Adam Orczyk
+ */
+
+const enum PfChannel {
     //% block="1"
     Channel1 = 0,
     //% block="2"
@@ -9,12 +18,12 @@ const enum Channel {
     Channel4 = 3,
 }
 
-const enum Output {
+const enum PfOutput {
     Red = 0,
     Blue = 1
 }
 
-const enum SingleOutput {
+const enum PfSingleOutput {
     //% block="Float"
     Float = 0b1000000,
     //% block="Forward 1"
@@ -87,7 +96,7 @@ const enum SingleOutput {
     ToggleC2 = 0b1101110,
 }
 
-const enum ComboDirect {
+const enum PfComboDirect {
     //% block="Float"
     Float = 0b00,
     //% block="Forward"
@@ -98,7 +107,7 @@ const enum ComboDirect {
     BrakeThenFloat = 0b11,
 }
 
-const enum ComboPWM {
+const enum PfComboPWM {
     //% block="Float"
     Float = 0b0000,
     //% block="Forward 1"
@@ -141,6 +150,7 @@ namespace pfTransmitter {
     let tasks: task[] = [];
     let tasksTypes: number[] = [];
     let lastCommand: number[] = [0, 0, 0, 0];
+    let isPlaying: boolean = true;
     export let repeatCommandTime: number = 500;
 
     class InfraredLed {
@@ -292,12 +302,14 @@ namespace pfTransmitter {
     }
 
     /**
-     * Single output mode - speed remote control.
+     * Single output mode (speed remote control).
+     * This mode is able to control: One output at a time with PWM or clear/set/toggle control pins.
+     * This mode has no timeout for lost IR on all commands except "full forward" and "full backward".
      */
     //% blockId="pf_transmitter_single_output_mode"
-    //% block="speed rc channel %channel output %output command %command"
+    //% block="Speed RC : channel %channel output %output command %command"
     //% weight=80
-    export function singleOutputMode(channel: Channel, output: Output, command: SingleOutput){
+    export function singleOutputMode(channel: PfChannel, output: PfOutput, command: PfSingleOutput){
         lastCommand[channel] = null;
         let mixDatagrams = true;
 
@@ -310,12 +322,14 @@ namespace pfTransmitter {
 
 
     /**
-     * Combo direct mode - remote control.
+     * Combo direct mode (ordinary remote control).
+     * Controlling the state of both output A and B at the same time.
+     * This mode has timeout for lost IR.
      */
     //% blockId="pf_transmitter_combo_direct_mode"
-    //% block="rc channel %channel red %red blue %blue"
+    //% block="RC : channel %channel red %red blue %blue"
     //% weight=70
-    export function comboDirectMode(channel: Channel, red: ComboDirect, blue: ComboDirect){
+    export function comboDirectMode(channel: PfChannel, red: PfComboDirect, blue: PfComboDirect){
         let command: number = (blue << 2) | red;
         let datagram = (channel << 8) | 0b00010000 | command;
 
@@ -340,12 +354,14 @@ namespace pfTransmitter {
     }
 
     /**
-     * Combo PWM mode.
+     * Combo PWM mode - controlling two outputs in the same time.
+     * Controlling the state of both output A and B at the same time.
+     * This mode has timeout for lost IR.
      */
     //% blockId="pf_transmitter_combo_pwm_mode"
-    //% block="rc channel %channel red %red blue %blue"
+    //% block="Combo Speed RC : channel %channel red %red blue %blue"
     //% weight=60
-    export function comboPWMMode(channel: Channel, red: ComboPWM, blue: ComboPWM) {
+    export function comboPWMMode(channel: PfChannel, red: PfComboPWM, blue: PfComboPWM) {
         let command: number = (blue << 4) | red;
         let datagram = ((0b0100 | channel) << 8) | command;
 
@@ -376,7 +392,13 @@ namespace pfTransmitter {
     //% block="play commands %commands"
     //% weight=50
     export function play(commands: number[][]){
-        commands.forEach((task) => {
+        isPlaying = true;
+
+        commands.every(task => {
+            if (!isPlaying){
+                return false;
+            }
+
             let start = input.runningTime();
             let channel = (0b001100000000 & task[0]) >>> 8;
             let mode = (0b000001110000 & task[0]) >>> 4;
@@ -391,6 +413,18 @@ namespace pfTransmitter {
             }
             
             basic.pause(task[2] - (input.runningTime() - start))
+
+            return true;
         })
+    }
+
+    /**
+     * Stops playing commands.
+     */
+    //% blockId="pf_transmitter_stop_playing"
+    //% block="stop playing commands"
+    //% weight=50
+    export function stopPlaying() {
+        isPlaying = false;
     }
 }
