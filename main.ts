@@ -266,6 +266,14 @@ namespace pfTransmitter {
             })
         }
 
+        // Pause after each command packet
+        // if (!mixDatagrams) {
+        //     tasks.push({
+        //         handler: () => {},
+        //         type: taskType
+        //     })
+        // }
+
         if (!schedulerIsWorking){
             schedulerIsWorking = true;
 
