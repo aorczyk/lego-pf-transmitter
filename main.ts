@@ -321,6 +321,7 @@ namespace pfTransmitter {
         lastCommand[channel] = null;
         let mixDatagrams = true;
 
+        // Because: Toggle bit is verified on receiver if increment/decrement/toggle command is received.
         if ([0b1100100, 0b1100101].some(x => x == command)){
             mixDatagrams = false
         }
