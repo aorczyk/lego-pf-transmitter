@@ -402,26 +402,32 @@ namespace pfTransmitter {
     //% weight=50
     export function play(commands: number[][]){
         isPlaying = true;
+        let lastCommand = commands.length - 1;
 
-        commands.every(task => {
+        commands.every((task, i) => {
             if (!isPlaying){
                 return false;
             }
 
             let start = input.runningTime();
-            let channel = (0b001100000000 & task[0]) >>> 8;
-            let mode = (0b000001110000 & task[0]) >>> 4;
 
-            if (mode == 1){
-                let red  = (0b000000000011 & task[0]);
-                let blue = (0b000000001100 & task[0]) >>> 2;
-                comboDirectMode(channel, red, blue)
+            if (task[3] == 1){
+                comboDirectMode(task[2], task[4], task[5])
             } else {
-                let command = (0b000001111111 & task[0]);
-                singleOutputMode(channel, 0, command)
+                singleOutputMode(task[2], 0, task[6])
             }
             
-            basic.pause(task[2] - (input.runningTime() - start))
+            if (i < lastCommand){
+                let shouldPause = Math.abs(commands[i+1][1] - task[1])
+                let alreadyPaused = input.runningTime() - start;
+                let pause = shouldPause - alreadyPaused;
+                
+                serial.writeNumbers([pause])
+
+                if (pause > 0){
+                    basic.pause(pause)
+                }
+            }
 
             return true;
         })
