@@ -1,7 +1,7 @@
 pfTransmitter.connectIrSenderLed(AnalogPin.P0, false)
 
-let test = 4;
-let testMax = 4;
+let test = 5;
+let testMax = test;
 basic.showNumber(test)
 
 
@@ -44,6 +44,10 @@ input.onButtonPressed(Button.A, function () {
         for (let n = 7; n > 0; n--) {
             pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.DecrementPWM)
         }
+    } else if (test == 5) {
+        // Sometimes program registers more commands, some commands are missed by LEGO PF receiver.
+        pfTransmitter.play([[101, 6570, 0, 6, 1, 1, 101], [101, 6704, 0, 6, 1, 1, 101], [101, 6812, 0, 6, 1, 1, 101], [101, 7081, 0, 6, 1, 1, 101], [101, 7218, 0, 6, 1, 1, 101], [101, 7324, 0, 6, 1, 1, 101], [100, 7725, 0, 6, 0, 1, 100], [100, 7878, 0, 6, 0, 1, 100], [100, 8035, 0, 6, 0, 1, 100], [100, 8190, 0, 6, 0, 1, 100], [100, 8341, 0, 6, 0, 1, 100], [
+            100, 8469, 0, 6, 0, 1, 100]])
     }
 })
 

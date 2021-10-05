@@ -1,31 +1,170 @@
+# Power Functions Transmitter
 
-> Otwórz tę stronę na [https://aorczyk.github.io/lego-pf-transmitter/](https://aorczyk.github.io/lego-pf-transmitter/)
+Control your LEGO Power Functions devices simultaneously with Micro:bit and an 940 nm emitting diode. 
 
-## Użyj jako rozszerzenia
+### Features:
+- all PF commands implemented
+- the ability to control multiple devices at the same time
+- the ability to quick change the state of the channel output
 
-To repozytorium można dodać jako **rozszerzenie** w MakeCode.
+### Warning!
+**Lighting the diode and the IR receiver with sunlight or from an ordinary light bulb may interfere with the signal reception.**
 
-* otwórz [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* kliknij na **Nowy Projekt**
-* kliknij **Rozszerzenia** w menu oznaczonym kołem zębatym
-* szukaj **https://github.com/aorczyk/lego-pf-transmitter** i importuj
+## Installation
 
-## Edytuj ten projekt ![Status kompilacji](https://github.com/aorczyk/lego-pf-transmitter/workflows/MakeCode/badge.svg)
+1. Open MakeCode and select '+ Extensions' in the 'Advanced' menu. 
+2. Enter the project URL https://github.com/aorczyk/lego-pf-transmitter in the search field.
+3. Select the `PF Transmitter` extension.
 
-Aby edytować to repozytorium w MakeCode.
+# Documentation
 
-* otwórz [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* kliknij **Importuj**, a następnie **Importuj URL**
-* wklej **https://github.com/aorczyk/lego-pf-transmitter** i kliknij importuj
+## pfTransmitter.connectIrSenderLed
 
-## Podgląd bloków
+Connects infrared 940 nm emitting diode at specified analog pin. 
 
-Ten obraz przedstawia kod bloków z ostatniego zatwierdzenia we wzorcu.
-Ten obraz może odświeżać się kilka minut.
+```sig
+pfTransmitter.connectIrSenderLed(AnalogPin.P0)
+```
+### Parameters
 
-![Renderowany widok bloków](https://github.com/aorczyk/lego-pf-transmitter/raw/master/.github/makecode/blocks.png)
+- `pin` - the analog pin where ir diode is connected
 
-#### Metadane (używane do wyszukiwania, renderowania)
+## pfTransmitter.singleOutputMode
 
-* for PXT/microbit
-<script src="https://makecode.com/gh-pages-embed.js"></script><script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>
+Single output mode (speed remote control). 
+This mode is able to control: one output at a time with PWM or clear/set/toggle control pins. 
+This mode has no timeout for lost IR on all commands except "full forward" and "full backward". 
+Following commands are supported:
+- Float
+- Forward step 1
+- Forward step 2
+- Forward step 3
+- Forward step 4
+- Forward step 5
+- Forward step 6
+- Forward step 7
+- Brake then float
+- Backward step 7
+- Backward step 6
+- Backward step 5
+- Backward step 4
+- Backward step 3
+- Backward step 2
+- Backward step 1
+- Increment
+- Decrement
+- Full forward
+- Full backward
+- Toggle full forward/backward (default forward)
+- Toggle full forward (Stop → Fw, Fw → Stop, Bw → Fw)
+- Toggle full backward (Stop → Bw, Bw → Stop, Fwd → Bw)
+- Toggle direction
+- Increment Numerical PWM
+- Decrement Numerical PWM
+- Clear C1 (negative logic – C1 high)
+- Set C1 (negative logic – C1 low)
+- Toggle C1
+- Clear C2 (negative logic – C2 high)
+- Set C2 (negative logic – C2 low)
+- Toggle C2
+
+```sig
+pfTransmitter.singleOutputMode(PfChannel.Channel1, PfOutput.Red, PfSingleOutput.Forward7)
+```
+
+### Parameters
+
+- `channel` - the channel from `0` to `3`
+- `output` - the output: `0` (red), `1` (blue)
+- `command` - the command
+
+## pfTransmitter.comboDirectMode
+
+Combo direct mode (ordinary remote control). 
+Controlling the state of both output A and B at the same time. 
+This mode has timeout for lost IR. 
+Following commands are supported:
+- Float
+- Forward
+- Backward
+- Brake then float
+
+```sig
+pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Forward, PfComboDirect.Float)
+```
+
+### Parameters
+
+- `channel` - the channel from `0` to `3`
+- `red` - the red output command
+- `blue` - the blue output command
+
+## pfTransmitter.comboPWMMode
+
+Combo PWM mode - controlling the state of both output A and B at the same time. 
+This mode has timeout for lost IR. 
+Following commands are supported:
+- Float
+- Forward step 1
+- Forward step 2
+- Forward step 3
+- Forward step 4
+- Forward step 5
+- Forward step 6
+- Forward step 7
+- Brake then float
+- Backward step 7
+- Backward step 6
+- Backward step 5
+- Backward step 4
+- Backward step 3
+- Backward step 2
+- Backward step 1
+
+```sig
+pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Forward7, PfComboPWM.Forward1)
+```
+
+### Parameters
+
+- `channel` - the channel from `0` to `3`
+- `red` - the red output command
+- `blue` - the blue output command
+
+## pfTransmitter.play
+
+Plays commands recorded by PF Receiver recorder.
+
+```sig
+pfTransmitter.play(commands)
+```
+
+### Parameters
+
+- `commands` - the array with data of recorded commands
+
+## MakeCode Example
+
+```blocks
+pfTransmitter.connectIrSenderLed(AnalogPin.P0)
+
+input.onButtonPressed(Button.A, function() {
+    pfTransmitter.singleOutputMode(PfChannel.Channel1, PfOutput.Red, PfSingleOutput.Forward7)
+    pfTransmitter.singleOutputMode(PfChannel.Channel1, PfOutput.Blue, PfSingleOutput.Forward7)
+})
+
+input.onButtonPressed(Button.B, function() {
+    pfTransmitter.singleOutputMode(PfChannel.Channel1, PfOutput.Red, PfSingleOutput.Float)
+    pfTransmitter.singleOutputMode(PfChannel.Channel1, PfOutput.Blue, PfSingleOutput.Float)
+})
+```
+
+## Disclaimer
+
+LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this project.
+
+## License
+
+Copyright (C) 2021 Adam Orczyk
+
+Licensed under the MIT License (MIT). See LICENSE file for more details.

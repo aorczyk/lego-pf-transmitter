@@ -257,7 +257,9 @@ namespace pfTransmitter {
             }
         }
 
-        for (let i = 0; i <= 3; i++) {
+        // "Five exactly matching messages (if no other buttons are pressed or released) are sent ... ."
+        // "(if no other buttons are pressed or released)" - this is not handle now, every command is sent one by one or mixed. It should be handled by receiver.
+        for (let i = 0; i <= 4; i++) {
             tasks.push({
                 handler: () => {
                     irLed.sendCommand(command)
@@ -266,7 +268,7 @@ namespace pfTransmitter {
             })
         }
 
-        // Pause after each command packet
+        // Pause after each command packet - seems not needed.
         // if (!mixDatagrams) {
         //     tasks.push({
         //         handler: () => {},
@@ -409,7 +411,7 @@ namespace pfTransmitter {
                 return false;
             }
 
-            let start = input.runningTime();
+            // let start = input.runningTimeMicros();
 
             if (task[3] == 1){
                 comboDirectMode(task[2], task[4], task[5])
@@ -419,13 +421,14 @@ namespace pfTransmitter {
             
             if (i < lastCommand){
                 let shouldPause = Math.abs(commands[i+1][1] - task[1])
-                let alreadyPaused = input.runningTime() - start;
-                let pause = shouldPause - alreadyPaused;
+                // alreadyPaused to be skipped - about 165u.
+                // let alreadyPaused = input.runningTimeMicros() - start; 
+                // let pause = shouldPause - alreadyPaused;
                 
-                serial.writeNumbers([pause])
+                // serial.writeNumbers([shouldPause, alreadyPaused])
 
-                if (pause > 0){
-                    basic.pause(pause)
+                if (shouldPause > 0){
+                    basic.pause(shouldPause)
                 }
             }
 
