@@ -413,14 +413,14 @@ namespace pfTransmitter {
 
             // let start = input.runningTimeMicros();
 
-            if (task[3] == 1){
-                comboDirectMode(task[2], task[4], task[5])
+            if (task[2] == 1){
+                comboDirectMode(task[1], task[3], task[4])
             } else {
-                singleOutputMode(task[2], 0, task[6])
+                singleOutputMode(task[1], 0, task[5])
             }
             
             if (i < lastCommand){
-                let shouldPause = Math.abs(commands[i+1][1] - task[1])
+                let shouldPause = task[0];
                 // alreadyPaused to be skipped - about 165u.
                 // let alreadyPaused = input.runningTimeMicros() - start; 
                 // let pause = shouldPause - alreadyPaused;
