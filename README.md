@@ -6,6 +6,7 @@ Control your LEGO Power Functions devices simultaneously with Micro:bit and an 9
 - all PF commands implemented
 - the ability to control multiple devices at the same time
 - the ability to quick change the state of the channel output
+- the ability to play commands recorded by PF Receiver extension
 
 ### Warning!
 **Lighting the diode and the IR receiver with sunlight or from an ordinary light bulb may interfere with the signal reception.**
@@ -133,7 +134,7 @@ pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Forward7, PfComboPWM.F
 
 ## pfTransmitter.play
 
-Plays commands recorded by PF Receiver recorder.
+Plays commands recorded by PF Receiver extension.
 
 ```sig
 pfTransmitter.play(commands)

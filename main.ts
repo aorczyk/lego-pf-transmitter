@@ -315,6 +315,9 @@ namespace pfTransmitter {
      * Single output mode (speed remote control).
      * This mode is able to control: One output at a time with PWM or clear/set/toggle control pins.
      * This mode has no timeout for lost IR on all commands except "full forward" and "full backward".
+     * @param channel the PF receiver channel, eg: PfChannel.Channel1
+     * @param output the PF receiver output, eg: PfOutput.Red
+     * @param command the Single Output Mode command, eg: PfSingleOutput.Forward7
      */
     //% blockId="pf_transmitter_single_output_mode"
     //% block="Speed RC : channel %channel output %output command %command"
@@ -336,6 +339,9 @@ namespace pfTransmitter {
      * Combo direct mode (ordinary remote control).
      * Controlling the state of both output A and B at the same time.
      * This mode has timeout for lost IR.
+     * @param channel the PF receiver channel, eg: PfChannel.Channel1
+     * @param red the red output Combo Direct Mode command, eg: PfComboDirect.Forward
+     * @param blue the blue output Combo Direct Mode command, eg: PfComboDirect.Forward
      */
     //% blockId="pf_transmitter_combo_direct_mode"
     //% block="RC : channel %channel red %red blue %blue"
@@ -368,6 +374,9 @@ namespace pfTransmitter {
      * Combo PWM mode - controlling two outputs in the same time.
      * Controlling the state of both output A and B at the same time.
      * This mode has timeout for lost IR.
+     * @param channel the PF receiver channel, eg: PfChannel.Channel1
+     * @param red the red output Combo PWM Mode command, eg: PfComboPWM.Forward7
+     * @param blue the blue output Combo PWM Mode command, eg: PfComboPWM.Forward7
      */
     //% blockId="pf_transmitter_combo_pwm_mode"
     //% block="Combo Speed RC : channel %channel red %red blue %blue"
@@ -398,6 +407,7 @@ namespace pfTransmitter {
 
     /**
      * Plays commands recorded by PF Receiver recorder.
+     * @param commands the recorded commands data
      */
     //% blockId="pf_transmitter_play"
     //% block="play commands %commands"
