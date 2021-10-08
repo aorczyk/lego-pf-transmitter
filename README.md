@@ -4,12 +4,12 @@ Control your LEGO Power Functions devices simultaneously with Micro:bit and an 9
 
 ### Features:
 - all PF commands implemented
-- the ability to control multiple devices at the same time
-- the ability to quick change the state of the channel output
-- the ability to play commands recorded by PF Receiver extension
+- controlling multiple devices at the same time
+- quick change the state of the channel output
+- playing commands recorded by PF Receiver extension
 
-### Warning!
-**Lighting the diode and the IR receiver with sunlight or from an ordinary light bulb may interfere with the signal reception.**
+### :warning: Warning!
+**Lighting the diode and the IR receiver with sunlight :sunny: or from an ordinary light bulb :bulb: may interfere with the signal reception.**
 
 ## Installation
 
