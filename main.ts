@@ -150,7 +150,6 @@ namespace pfTransmitter {
     let tasks: task[] = [];
     let tasksTypes: number[] = [];
     let lastCommand: number[] = [0, 0, 0, 0];
-    let isPlaying: boolean = true;
     export let repeatCommandTime: number = 500;
 
     class InfraredLed {
@@ -403,56 +402,5 @@ namespace pfTransmitter {
                 }
             }, repeatCommandTime, control.IntervalMode.Interval)
         }
-    }
-
-    /**
-     * Plays commands recorded by PF Receiver recorder.
-     * @param commands the recorded commands data
-     */
-    //% blockId="pf_transmitter_play"
-    //% block="play commands %commands"
-    //% weight=50
-    export function play(commands: number[][]){
-        isPlaying = true;
-        let lastCommand = commands.length - 1;
-
-        commands.every((task, i) => {
-            if (!isPlaying){
-                return false;
-            }
-
-            // let start = input.runningTimeMicros();
-
-            if (task[2] == 1){
-                comboDirectMode(task[1], task[3], task[4])
-            } else {
-                singleOutputMode(task[1], 0, task[5])
-            }
-            
-            if (i < lastCommand){
-                let shouldPause = task[0];
-                // alreadyPaused to be skipped - about 165u.
-                // let alreadyPaused = input.runningTimeMicros() - start; 
-                // let pause = shouldPause - alreadyPaused;
-                
-                // serial.writeNumbers([shouldPause, alreadyPaused])
-
-                if (shouldPause > 0){
-                    basic.pause(shouldPause)
-                }
-            }
-
-            return true;
-        })
-    }
-
-    /**
-     * Stops playing commands.
-     */
-    //% blockId="pf_transmitter_stop_playing"
-    //% block="stop playing commands"
-    //% weight=50
-    export function stopPlaying() {
-        isPlaying = false;
     }
 }
