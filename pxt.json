@@ -8,7 +8,9 @@
     },
     "files": [
         "main.ts",
-        "README.md"
+        "README.md",
+        "_locales/pl/PF Transmitter-jsdoc-strings.json",
+        "_locales/pl/PF Transmitter-strings.json"
     ],
     "testFiles": [
         "test.ts"
