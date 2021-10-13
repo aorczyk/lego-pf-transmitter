@@ -55,10 +55,10 @@
   "PfSingleOutput.ToggleFullBackward|block": "Przełącz cała wstecz (Stop → Bw, Bw → Stop, Fwd → Bw)",
   "PfSingleOutput.ToggleFullForwardBackward|block": "Przełącz cała naprzód/wstecz (domyślnie naprzód)",
   "PfSingleOutput.ToggleFullForward|block": "Przełącz cała wstecz (Stop → Fw, Fw → Stop, Bw → Fw)",
-  "pfTransmitter.comboDirectMode|block": "RC : kanał %channel czerwone %red niebieskie %blue",
-  "pfTransmitter.comboPWMMode|block": "Combo Speed RC : kanał %channel czerwone %red niebieskie %blue",
+  "pfTransmitter.comboDirectMode|block": "ustaw stan wyjść : kanał %channel czerwone %red niebieskie %blue",
+  "pfTransmitter.comboPWMMode|block": "ustaw prędkość wyjść : kanał %channel czerwone %red niebieskie %blue",
   "pfTransmitter.connectIrSenderLed|block": "podłącz diodę podczerwieni do pinu %pin",
-  "pfTransmitter.singleOutputMode|block": "Speed RC : kanał %channel wyjście %output komenda %command",
+  "pfTransmitter.singleOutputMode|block": "ustaw prędkość : kanał %channel wyjście %output komenda %command",
   "pfTransmitter|block": "Nadajnik PF",
   "{id:category}PfTransmitter": "PfTransmitter"
 }
