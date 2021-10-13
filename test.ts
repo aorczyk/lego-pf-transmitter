@@ -1,6 +1,6 @@
 pfTransmitter.connectIrSenderLed(AnalogPin.P0, false)
 
-let test = 4;
+let test = 5;
 let testMax = test;
 basic.showNumber(test)
 
@@ -44,6 +44,18 @@ input.onButtonPressed(Button.A, function () {
         for (let n = 7; n > 0; n--) {
             pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.DecrementPWM)
         }
+    } else if (test == 5) {
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Forward7)
+        basic.pause(3000)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
+        basic.pause(1000)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.ToggleC1)
+        // basic.pause(1000)
+        // pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Forward7)
+        basic.pause(3000)
+        // pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.ToggleC2)
+        // basic.pause(3000)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
     }
 })
 
