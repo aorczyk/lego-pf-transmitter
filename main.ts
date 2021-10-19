@@ -286,6 +286,7 @@ namespace pfTransmitter {
                     }
                     tasks[i].handler();
                     tasks.splice(i, 1);
+                    // Pause time after each signal.
                     basic.pause(20)
                 }
                 schedulerIsWorking = false;
