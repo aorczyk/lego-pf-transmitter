@@ -132,6 +132,29 @@ pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Forward7, PfComboPWM.F
 - `blue` - the blue output command
 
 
+## pfTransmitter.getLastCommandSendingTime
+
+Returns the duration of sending the command (ms).
+
+```sig
+pfTransmitter.getLastCommandSendingTime()
+```
+
+## pfTransmitter.advancedSettings
+
+Advanced settings.
+
+```sig
+pfTransmitter.advancedSettings(500, 0, 5)
+```
+
+### Parameters
+
+- `repeatCommandAfter` - the time after which combo command is repeated (ms)
+- `afterSignalPause` - the pause before sending next signal in package (ms)
+- `signalRepeatNumber` - the number of signals in package
+
+
 ## MakeCode Example
 
 ```blocks

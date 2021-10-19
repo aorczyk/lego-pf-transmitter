@@ -155,7 +155,7 @@ namespace pfTransmitter {
         afterSignalPause: 0,
         signalRepeatNumber: 5
     }
-    let lastCommandSendTime = 0;
+    let lastCommandSendingTime = 0;
 
     class InfraredLed {
         private pin: AnalogPin;
@@ -299,7 +299,7 @@ namespace pfTransmitter {
                 }
                 
                 schedulerIsWorking = false;
-                lastCommandSendTime = input.runningTime() - start;
+                lastCommandSendingTime = input.runningTime() - start;
             })
         }
     }
@@ -417,25 +417,25 @@ namespace pfTransmitter {
 
 
     /**
-     * Returns last command send time (ms).
+     * Returns the duration of sending the command (ms).
      */
-    //% blockId=pf_transmitter_recorded_commands
+    //% blockId=pf_transmitter_getLastCommandSendingTime
     //% block="last command send time"
     //% weight=50
-    export function getLastCommandSendTime() {
-        return lastCommandSendTime;
+    export function getLastCommandSendingTime() {
+        return lastCommandSendingTime;
     }
 
 
     /**
      * Advanced settings.
-     * @param repeatCommandAfter the time after which combo command is repeated (ms), eg.: 500ms
+     * @param repeatCommandAfter the time after which combo command is repeated (ms), eg.: 500
      * @param afterSignalPause the pause before sending next signal in package (ms), eg.: 0
-     * @param signalRepeatNumber the number of repetitions of the signal, eg.: 5
+     * @param signalRepeatNumber the number of signals in package, eg.: 5
      */
     //% blockId=pf_transmitter_settings
     //% block="advanced settings: repeatCommandAfter %repeatCommandAfter | afterSignalPause %afterSignalPause | signalRepeatNumber %signalRepeatNumber"
-    //% weight=50
+    //% weight=40
     export function advancedSettings(
         repeatCommandAfter: number = 500,
         afterSignalPause: number = 0,
