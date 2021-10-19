@@ -55,10 +55,12 @@
   "PfSingleOutput.ToggleFullBackward|block": "Toggle full backward (Stop → Bw, Bw → Stop, Fwd → Bw)",
   "PfSingleOutput.ToggleFullForwardBackward|block": "Toggle full forward/backward (default forward)",
   "PfSingleOutput.ToggleFullForward|block": "Toggle full forward (Stop → Fw, Fw → Stop, Bw → Fw)",
-  "pfTransmitter.comboDirectMode|block": "RC : channel %channel red %red blue %blue",
-  "pfTransmitter.comboPWMMode|block": "Combo Speed RC : channel %channel red %red blue %blue",
+  "pfTransmitter.advancedSettings|block": "advanced settings: repeatCommandAfter %repeatCommandAfter | afterSignalPause %afterSignalPause | signalRepeatNumber %signalRepeatNumber",
+  "pfTransmitter.comboDirectMode|block": "set state of outputs : channel %channel red %red blue %blue",
+  "pfTransmitter.comboPWMMode|block": "set speed of outputs : channel %channel red %red blue %blue",
   "pfTransmitter.connectIrSenderLed|block": "connect IR sender LED at pin %pin",
-  "pfTransmitter.singleOutputMode|block": "Speed RC : channel %channel output %output command %command",
+  "pfTransmitter.getLastCommandSendingTime|block": "last command send time",
+  "pfTransmitter.singleOutputMode|block": "set speed : channel %channel output %output command %command",
   "pfTransmitter|block": "PF Transmitter",
   "{id:category}PfTransmitter": "PfTransmitter"
 }

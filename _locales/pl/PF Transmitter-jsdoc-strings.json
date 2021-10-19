@@ -13,5 +13,10 @@
   "pfTransmitter.singleOutputMode": "Tryb Single Output (pilot kontroli prędkości).\r\nTen tryb jest w stanie kontrolować : jedno wyjście na raz lub piny sterujące clear/set/toggle.\r\nTen tryb nie ma limitu czasu na utratę sygnału podczerwieni dla wszystkich komend z wyjątkiem \"Cała naprzód\" i \"Cała wstecz\".",
   "pfTransmitter.singleOutputMode|param|channel": "kanał odbiornika podczerwieni, np.: PfChannel.Channel1",
   "pfTransmitter.singleOutputMode|param|command": "komenda trybu Single Output, np.: PfSingleOutput.Forward7",
-  "pfTransmitter.singleOutputMode|param|output": "wyjście odbiornika podczerwieni, np.: PfOutput.Red"
+  "pfTransmitter.singleOutputMode|param|output": "wyjście odbiornika podczerwieni, np.: PfOutput.Red",
+  "pfTransmitter.getLastCommandSendingTime": "Zwraca czas trwania wysyłania ostatniej komendy (ms).",
+  "pfTransmitter.advancedSettings": "Zaawansowane ustawienia.",
+  "pfTransmitter.advancedSettings|param|afterSignalPause": "przerwa przed wysłaniem kolejnego sygnału w pakiecie (ms), np.: 0",
+  "pfTransmitter.advancedSettings|param|repeatCommandAfter": "czas, po którym powtarzana jest komenda combo (ms), eg.: 500",
+  "pfTransmitter.advancedSettings|param|signalRepeatNumber": "liczba sygnałów w pakiecie, eg.: 5"
 }
