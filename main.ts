@@ -415,11 +415,6 @@ namespace pfTransmitter {
         }
     }
 
-    export function setSettings(repeatCommandAfter: number, afterSignalPause: number, signalRepeatNumber: number){
-        settings.repeatCommandAfter = repeatCommandAfter;
-        settings.afterSignalPause = afterSignalPause;
-        settings.signalRepeatNumber = signalRepeatNumber;
-    }
 
     /**
      * Returns last command send time (ms).
@@ -429,5 +424,25 @@ namespace pfTransmitter {
     //% weight=50
     export function getLastCommandSendTime() {
         return lastCommandSendTime;
+    }
+
+
+    /**
+     * Advanced settings.
+     * @param repeatCommandAfter the time after which combo command is repeated (ms), eg.: 500ms
+     * @param afterSignalPause the pause before sending next signal in package (ms), eg.: 0
+     * @param signalRepeatNumber the number of repetitions of the signal, eg.: 5
+     */
+    //% blockId=pf_transmitter_settings
+    //% block="advanced settings: repeatCommandAfter %repeatCommandAfter | afterSignalPause %afterSignalPause | signalRepeatNumber %signalRepeatNumber"
+    //% weight=50
+    export function advancedSettings(
+        repeatCommandAfter: number = 500,
+        afterSignalPause: number = 0,
+        signalRepeatNumber: number = 5) {
+
+        settings.repeatCommandAfter = repeatCommandAfter;
+        settings.afterSignalPause = afterSignalPause;
+        settings.signalRepeatNumber = signalRepeatNumber;
     }
 }
