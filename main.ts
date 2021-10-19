@@ -420,7 +420,7 @@ namespace pfTransmitter {
      * Returns the duration of sending the command (ms).
      */
     //% blockId=pf_transmitter_getLastCommandSendingTime
-    //% block="last command send time"
+    //% block="last command sending time"
     //% weight=50
     export function getLastCommandSendingTime() {
         return lastCommandSendingTime;
