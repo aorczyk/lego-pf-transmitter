@@ -417,7 +417,7 @@ namespace pfTransmitter {
 
 
     /**
-     * Returns the duration of sending the command (ms).
+     * Returns the duration of sending the last command (ms).
      */
     //% blockId=pf_transmitter_getLastCommandSendingTime
     //% block="last command sending time"
