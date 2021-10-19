@@ -1,17 +1,18 @@
+/*  Tests: 
+    0. singleOutputMode - two outputs in the same time: A - Increment, B - Decrement.
+    1. singleOutputMode - two outputs in the same time: A - on, B - off.
+    2. On and off: A - singleOutputMode, B - comboDirectMode.
+    3. Hold command for 10s (auto repeat): A - comboDirectMode, B - comboPWMMode.
+    4. singleOutputMode: increment and decrement (A - one output, B - two outputs).
+    5. singleOutputMode: FullForward -> FullBackward -> ToggleDirection -> Float -> Backward7 -> ToggleFullForwardBackward -> Float.
+    6. singleOutputMode: IncrementNumericalPWM, DecrementNumericalPWM.
+*/
+
 pfTransmitter.connectIrSenderLed(AnalogPin.P0, false)
 
-let test = 5;
+let test = 6;
 let testMax = test;
 basic.showNumber(test)
-
-
-
-// Tests:
-// 0. singleOutputMode - two outputs in the same time: A - Increment, B - Decrement.
-// 1. singleOutputMode - two outputs in the same time: A - on, B - off.
-// 2. On and off: A - singleOutputMode, B - comboDirectMode.
-// 3. Hold command for 10s (auto repeat): A - comboDirectMode, B - comboPWMMode.
-// 4. singleOutputMode: increment and decrement (A - one output, B - two outputs).
 
 input.onButtonPressed(Button.AB, function () {
     test += 1;
@@ -41,21 +42,43 @@ input.onButtonPressed(Button.A, function () {
         for (let n = 0; n < 7; n++){
             pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.IncrementPWM)
         }
-        for (let n = 7; n > 0; n--) {
+        for (let n = 0; n < 7; n++) {
             pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.DecrementPWM)
         }
     } else if (test == 5) {
-        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Forward7)
-        basic.pause(3000)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.FullForward)
+        basic.pause(2000)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.FullBackward)
+        basic.pause(2000)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.ToggleDirection)
+        basic.pause(2000)
         pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
+        basic.pause(2000)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Backward7)
+        basic.pause(2000)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.ToggleFullForwardBackward)
+        basic.pause(2000)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
+    } else if (test == 6) {
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Backward1)
         basic.pause(1000)
-        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.ToggleC1)
-        // basic.pause(1000)
-        // pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Forward7)
-        basic.pause(3000)
-        // pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.ToggleC2)
-        // basic.pause(3000)
-        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
+        for (let n = 0; n < 7; n++) {
+            pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.IncrementNumericalPWM)
+        }
+        basic.pause(2000)
+        for (let n = 0; n < 7; n++) {
+            pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.DecrementNumericalPWM)
+        }
+        basic.pause(1000)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Forward1)
+        basic.pause(1000)
+        for (let n = 0; n < 7; n++) {
+            pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.IncrementNumericalPWM)
+        }
+        basic.pause(2000)
+        for (let n = 0; n < 7; n++) {
+            pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.DecrementNumericalPWM)
+        }
     }
 })
 
