@@ -150,7 +150,12 @@ namespace pfTransmitter {
     let tasks: task[] = [];
     let tasksTypes: number[] = [];
     let lastCommand: number[] = [0, 0, 0, 0];
-    export let repeatCommandTime: number = 500;
+    let settings = {
+        repeatCommandAfter: 500,
+        afterSignalPause: 0,
+        signalRepeatNumber: 5
+    }
+    let lastCommandSendTime = 0;
 
     class InfraredLed {
         private pin: AnalogPin;
@@ -258,7 +263,7 @@ namespace pfTransmitter {
 
         // "Five exactly matching messages (if no other buttons are pressed or released) are sent ... ."
         // "(if no other buttons are pressed or released)" - this is not handle now, every command is sent one by one or mixed. It should be handled by receiver.
-        for (let i = 0; i <= 4; i++) {
+        for (let i = 0; i < settings.signalRepeatNumber; i++) {
             tasks.push({
                 handler: () => {
                     irLed.sendCommand(command)
@@ -279,6 +284,8 @@ namespace pfTransmitter {
             schedulerIsWorking = true;
 
             control.inBackground(function() {
+                let start = input.runningTime();
+
                 while(tasks.length > 0){
                     let i = 0;
                     if (mixDatagrams) {
@@ -286,10 +293,13 @@ namespace pfTransmitter {
                     }
                     tasks[i].handler();
                     tasks.splice(i, 1);
+                    
                     // Pause time after each signal.
-                    basic.pause(20)
+                    basic.pause(settings.afterSignalPause)
                 }
+                
                 schedulerIsWorking = false;
+                lastCommandSendTime = input.runningTime() - start;
             })
         }
     }
@@ -366,7 +376,7 @@ namespace pfTransmitter {
                 } else {
                     control.clearInterval(iId, control.IntervalMode.Interval)
                 }
-            }, repeatCommandTime, control.IntervalMode.Interval)
+            }, settings.repeatCommandAfter, control.IntervalMode.Interval)
         }
     }
 
@@ -401,7 +411,23 @@ namespace pfTransmitter {
                 } else {
                     control.clearInterval(iId, control.IntervalMode.Interval)
                 }
-            }, repeatCommandTime, control.IntervalMode.Interval)
+            }, settings.repeatCommandAfter, control.IntervalMode.Interval)
         }
+    }
+
+    export function setSettings(repeatCommandAfter: number, afterSignalPause: number, signalRepeatNumber: number){
+        settings.repeatCommandAfter = repeatCommandAfter;
+        settings.afterSignalPause = afterSignalPause;
+        settings.signalRepeatNumber = signalRepeatNumber;
+    }
+
+    /**
+     * Returns last command send time (ms).
+     */
+    //% blockId=pf_transmitter_recorded_commands
+    //% block="last command send time"
+    //% weight=50
+    export function getLastCommandSendTime() {
+        return lastCommandSendTime;
     }
 }
