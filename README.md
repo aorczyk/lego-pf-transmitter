@@ -8,7 +8,7 @@ Control your LEGO Power Functions devices simultaneously with Micro:bit and an 9
 - quick change the state of the channel output
 
 ### :warning: Warning!
-**Lighting the diode and the IR receiver with sunlight :sunny: or from an ordinary light bulb :bulb: may interfere with the signal reception.**
+**The light (solar :sunny: or lamp :bulb:) falling on the diode or ir receiver interferes with the signal transmission.**
 
 ## Installation
 

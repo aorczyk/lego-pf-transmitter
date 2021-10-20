@@ -305,11 +305,11 @@ namespace pfTransmitter {
     // ---
 
     /**
-     * Connects to the IR-emitting LED at the specified pin.
-     * @param pin IR LED pin, eg: AnalogPin.P0
+     * Connects to the IR-emitting diode at the specified pin. Warning! The light (solar or lamp) falling on the diode or ir receiver interferes with the signal transmission.
+     * @param pin IR diode pin, eg: AnalogPin.P0
      */
     //% blockId="pf_transmitter_infrared_sender_connect"
-    //% block="connect IR sender LED at pin %pin"
+    //% block="connect IR sender diode at pin %pin"
     //% pin.fieldEditor="gridpicker"
     //% pin.fieldOptions.columns=4
     //% pin.fieldOptions.tooltips="false"
