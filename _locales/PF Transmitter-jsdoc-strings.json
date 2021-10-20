@@ -14,7 +14,6 @@
   "pfTransmitter.comboPWMMode|param|red": "the red output Combo PWM Mode command, eg: PfComboPWM.Forward7",
   "pfTransmitter.connectIrSenderLed": "Connects to the IR-emitting LED at the specified pin.",
   "pfTransmitter.connectIrSenderLed|param|pin": "IR LED pin, eg: AnalogPin.P0",
-  "pfTransmitter.getLastCommandSendingTime": "Returns the duration of sending the command (ms).",
   "pfTransmitter.singleOutputMode": "Single output mode (speed remote control).\r\nThis mode is able to control: One output at a time with PWM or clear/set/toggle control pins.\r\nThis mode has no timeout for lost IR on all commands except \"full forward\" and \"full backward\".",
   "pfTransmitter.singleOutputMode|param|channel": "the PF receiver channel, eg: PfChannel.Channel1",
   "pfTransmitter.singleOutputMode|param|command": "the Single Output Mode command, eg: PfSingleOutput.Forward7",

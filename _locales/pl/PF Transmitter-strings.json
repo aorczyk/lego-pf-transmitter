@@ -60,7 +60,6 @@
   "pfTransmitter.comboPWMMode|block": "ustaw prędkość wyjść : kanał %channel czerwone %red niebieskie %blue",
   "pfTransmitter.connectIrSenderLed|block": "podłącz diodę podczerwieni do pinu %pin",
   "pfTransmitter.singleOutputMode|block": "ustaw prędkość : kanał %channel wyjście %output komenda %command",
-  "pfTransmitter.getLastCommandSendingTime|block": "czas wysyłania ostatniej komendy",
   "pfTransmitter|block": "Nadajnik PF",
   "{id:category}PfTransmitter": "PfTransmitter"
 }
