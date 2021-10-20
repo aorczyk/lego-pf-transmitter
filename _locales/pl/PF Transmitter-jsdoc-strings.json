@@ -8,7 +8,7 @@
   "pfTransmitter.comboPWMMode|param|blue": "komenda niebieskiego wyjścia trybu Combo PWM, np.: PfComboPWM.Forward7",
   "pfTransmitter.comboPWMMode|param|channel": "kanał odbiornika podczerwieni, np.: PfChannel.Channel1",
   "pfTransmitter.comboPWMMode|param|red": "komenda czerwonego wyjścia trybu Combo PWM, np.: PfComboPWM.Forward7",
-  "pfTransmitter.connectIrSenderLed": "Podłącza diodę podczerwieni do określonego pinu.",
+  "pfTransmitter.connectIrSenderLed": "Podłącza diodę podczerwieni do określonego pinu. Uwaga! Światło (słoneczne lub lampy) padające na diodę lub odbiornik podczerwieni zakłuca przesyłanie sygnału.",
   "pfTransmitter.connectIrSenderLed|param|pin": "Pin diody podczerwieni, np.: AnalogPin.P0",
   "pfTransmitter.singleOutputMode": "Tryb Single Output (pilot kontroli prędkości).\r\nTen tryb jest w stanie kontrolować : jedno wyjście na raz lub piny sterujące clear/set/toggle.\r\nTen tryb nie ma limitu czasu na utratę sygnału podczerwieni dla wszystkich komend z wyjątkiem \"Cała naprzód\" i \"Cała wstecz\".",
   "pfTransmitter.singleOutputMode|param|channel": "kanał odbiornika podczerwieni, np.: PfChannel.Channel1",

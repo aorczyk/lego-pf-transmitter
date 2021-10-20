@@ -58,7 +58,7 @@
   "pfTransmitter.advancedSettings|block": "advanced settings: repeatCommandAfter %repeatCommandAfter | afterSignalPause %afterSignalPause | signalRepeatNumber %signalRepeatNumber",
   "pfTransmitter.comboDirectMode|block": "set state of outputs : channel %channel red %red blue %blue",
   "pfTransmitter.comboPWMMode|block": "set speed of outputs : channel %channel red %red blue %blue",
-  "pfTransmitter.connectIrSenderLed|block": "connect IR sender LED at pin %pin",
+  "pfTransmitter.connectIrSenderLed|block": "connect IR sender diode at pin %pin",
   "pfTransmitter.singleOutputMode|block": "set speed : channel %channel output %output command %command",
   "pfTransmitter|block": "PF Transmitter",
   "{id:category}PfTransmitter": "PfTransmitter"
