@@ -132,14 +132,6 @@ pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Forward7, PfComboPWM.F
 - `blue` - the blue output command
 
 
-## pfTransmitter.getLastCommandSendingTime
-
-Returns the duration of sending the command (ms).
-
-```sig
-pfTransmitter.getLastCommandSendingTime()
-```
-
 ## pfTransmitter.advancedSettings
 
 Advanced settings.
