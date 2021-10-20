@@ -155,7 +155,6 @@ namespace pfTransmitter {
         afterSignalPause: 0,
         signalRepeatNumber: 5
     }
-    let lastCommandSendingTime = 0;
 
     class InfraredLed {
         private pin: AnalogPin;
@@ -299,7 +298,6 @@ namespace pfTransmitter {
                 }
                 
                 schedulerIsWorking = false;
-                lastCommandSendingTime = input.runningTime() - start;
             })
         }
     }
@@ -413,17 +411,6 @@ namespace pfTransmitter {
                 }
             }, settings.repeatCommandAfter, control.IntervalMode.Interval)
         }
-    }
-
-
-    /**
-     * Returns the duration of sending the last command (ms).
-     */
-    //% blockId=pf_transmitter_getLastCommandSendingTime
-    //% block="last command sending time"
-    //% weight=50
-    export function getLastCommandSendingTime() {
-        return lastCommandSendingTime;
     }
 
 
