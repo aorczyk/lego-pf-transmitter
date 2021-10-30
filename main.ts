@@ -416,9 +416,9 @@ namespace pfTransmitter {
 
     /**
      * Advanced settings.
-     * @param repeatCommandAfter the time after which combo command is repeated (ms), eg.: 500
-     * @param afterSignalPause the pause before sending next signal in package (ms), eg.: 0
-     * @param signalRepeatNumber the number of signals in package, eg.: 5
+     * @param repeatCommandAfter the time after which combo command is repeated (ms), eg: 500
+     * @param afterSignalPause the pause before sending next signal in package (ms), eg: 0
+     * @param signalRepeatNumber the number of signals in package, eg: 5
      */
     //% blockId=pf_transmitter_settings
     //% block="advanced settings: repeatCommandAfter %repeatCommandAfter | afterSignalPause %afterSignalPause | signalRepeatNumber %signalRepeatNumber"
