@@ -148,8 +148,8 @@ namespace pfTransmitter {
     let toggleByChannel: number[] = [1, 1, 1, 1];
     let schedulerIsWorking: boolean = false;
     let tasks: task[] = [];
-    let tasksTypes: number[] = [];
     let lastCommand: number[] = [0, 0, 0, 0];
+    let intervalId: number[] = [null, null, null, null];
     let settings = {
         repeatCommandAfter: 500,
         afterSignalPause: 0,
@@ -358,22 +358,15 @@ namespace pfTransmitter {
         let command: number = (blue << 2) | red;
         let datagram = (channel << 8) | 0b00010000 | command;
 
-        if (command == lastCommand[channel]){
-            return;
+        if (intervalId[channel]){
+            control.clearInterval(intervalId[channel], control.IntervalMode.Interval)
         }
-
-        lastCommand[channel] = command;
 
         sendPacket(datagram);
 
-        if (command != 0) {
-            let iId: number = null;
-            iId = control.setInterval(() => {
-                if (command == lastCommand[channel]) {
-                    sendPacket(datagram);
-                } else {
-                    control.clearInterval(iId, control.IntervalMode.Interval)
-                }
+        if (command != 0 && command != 15) {
+            intervalId[channel] = control.setInterval(() => {
+                sendPacket(datagram);
             }, settings.repeatCommandAfter, control.IntervalMode.Interval)
         }
     }
@@ -393,22 +386,15 @@ namespace pfTransmitter {
         let command: number = (blue << 4) | red;
         let datagram = ((0b0100 | channel) << 8) | command;
 
-        if (command == lastCommand[channel]) {
-            return;
+        if (intervalId[channel]) {
+            control.clearInterval(intervalId[channel], control.IntervalMode.Interval)
         }
-
-        lastCommand[channel] = command;
 
         sendPacket(datagram);
 
-        if (command != 0) {
-            let iId: number = null;
-            iId = control.setInterval(() => {
-                if (command == lastCommand[channel]) {
-                    sendPacket(datagram);
-                } else {
-                    control.clearInterval(iId, control.IntervalMode.Interval)
-                }
+        if (command != 0 && command != 136) {
+            intervalId[channel] = control.setInterval(() => {
+                sendPacket(datagram);
             }, settings.repeatCommandAfter, control.IntervalMode.Interval)
         }
     }
