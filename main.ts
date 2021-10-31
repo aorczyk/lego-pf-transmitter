@@ -148,7 +148,6 @@ namespace pfTransmitter {
     let toggleByChannel: number[] = [1, 1, 1, 1];
     let schedulerIsWorking: boolean = false;
     let tasks: task[] = [];
-    let lastCommand: number[] = [0, 0, 0, 0];
     let intervalId: number[] = [null, null, null, null];
     let settings = {
         repeatCommandAfter: 500,
@@ -302,7 +301,20 @@ namespace pfTransmitter {
         }
     }
 
-    // ---
+    function repeatCommand(channel: PfChannel, command: number, datagram: number, excluded: number[]) {
+        if (intervalId[channel]) {
+            control.clearInterval(intervalId[channel], control.IntervalMode.Interval)
+            intervalId[channel] = null;
+        }
+
+        sendPacket(datagram);
+
+        if (!excluded.some(x => x == command)) {
+            intervalId[channel] = control.setInterval(() => {
+                sendPacket(datagram);
+            }, settings.repeatCommandAfter, control.IntervalMode.Interval)
+        }
+    }
 
     /**
      * Connects to the IR-emitting diode at the specified pin. Warning! The light (solar or lamp) falling on the diode or ir receiver interferes with the signal transmission.
@@ -331,7 +343,6 @@ namespace pfTransmitter {
     //% block="set speed : channel %channel output %output command %command"
     //% weight=80
     export function singleOutputMode(channel: PfChannel, output: PfOutput, command: PfSingleOutput){
-        lastCommand[channel] = null;
         let mixDatagrams = true;
 
         // Because: Toggle bit is verified on receiver if increment/decrement/toggle command is received.
@@ -341,7 +352,6 @@ namespace pfTransmitter {
 
         sendPacket((channel << 8) | command | (output << 4), mixDatagrams)
     }
-
 
     /**
      * Combo direct mode (ordinary remote control).
@@ -358,17 +368,7 @@ namespace pfTransmitter {
         let command: number = (blue << 2) | red;
         let datagram = (channel << 8) | 0b00010000 | command;
 
-        if (intervalId[channel]){
-            control.clearInterval(intervalId[channel], control.IntervalMode.Interval)
-        }
-
-        sendPacket(datagram);
-
-        if (command != 0 && command != 15) {
-            intervalId[channel] = control.setInterval(() => {
-                sendPacket(datagram);
-            }, settings.repeatCommandAfter, control.IntervalMode.Interval)
-        }
+        repeatCommand(channel, command, datagram, [0, 15])
     }
 
     /**
@@ -386,19 +386,8 @@ namespace pfTransmitter {
         let command: number = (blue << 4) | red;
         let datagram = ((0b0100 | channel) << 8) | command;
 
-        if (intervalId[channel]) {
-            control.clearInterval(intervalId[channel], control.IntervalMode.Interval)
-        }
-
-        sendPacket(datagram);
-
-        if (command != 0 && command != 136) {
-            intervalId[channel] = control.setInterval(() => {
-                sendPacket(datagram);
-            }, settings.repeatCommandAfter, control.IntervalMode.Interval)
-        }
+        repeatCommand(channel, command, datagram, [0, 136])
     }
-
 
     /**
      * Advanced settings.
