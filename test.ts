@@ -11,7 +11,7 @@
 pfTransmitter.connectIrSenderLed(AnalogPin.P0, false)
 
 let test = 3;
-let testMax = test;
+let testMax = 6;
 basic.showNumber(test)
 
 input.onButtonPressed(Button.AB, function () {
