@@ -368,7 +368,7 @@ namespace pfTransmitter {
         let command: number = (blue << 2) | red;
         let datagram = (channel << 8) | 0b00010000 | command;
 
-        repeatCommand(channel, command, datagram, [0, 15])
+        repeatCommand(channel, command, datagram, [0, 0b1111])
     }
 
     /**
@@ -386,7 +386,7 @@ namespace pfTransmitter {
         let command: number = (blue << 4) | red;
         let datagram = ((0b0100 | channel) << 8) | command;
 
-        repeatCommand(channel, command, datagram, [0, 136])
+        repeatCommand(channel, command, datagram, [0, 0b10001000])
     }
 
     /**
