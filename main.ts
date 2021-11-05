@@ -390,13 +390,13 @@ namespace pfTransmitter {
     }
 
     /**
-     * Advanced settings.
+     * Advanced settings - use only when something does not work properly.
      * @param repeatCommandAfter the time after which combo command is repeated (ms), eg: 500
      * @param afterSignalPause the pause before sending next signal in package (ms), eg: 0
      * @param signalRepeatNumber the number of signals in package, eg: 5
      */
     //% blockId=pf_transmitter_settings
-    //% block="advanced settings: repeatCommandAfter %repeatCommandAfter | afterSignalPause %afterSignalPause | signalRepeatNumber %signalRepeatNumber"
+    //% block="PF Transmitter advanced settings: repeat command after %repeatCommandAfter pause after signal %afterSignalPause signal repeat number %signalRepeatNumber"
     //% weight=40
     export function advancedSettings(
         repeatCommandAfter: number = 500,
