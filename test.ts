@@ -2,7 +2,7 @@
     0. singleOutputMode - two outputs in the same time: A - Increment, B - Decrement.
     1. singleOutputMode - two outputs in the same time: A - on, B - off.
     2. On and off: A - singleOutputMode, B - comboDirectMode.
-    3. Hold command for 10s (auto repeat): A - comboDirectMode, B - comboPWMMode.
+    3. Hold command for 5s (auto repeat): A - comboDirectMode, B - comboPWMMode.
     4. singleOutputMode: increment and decrement (A - one output, B - two outputs).
     5. singleOutputMode: FullForward -> FullBackward -> ToggleDirection -> Float -> Backward7 -> ToggleFullForwardBackward -> Float.
     6. singleOutputMode: IncrementNumericalPWM, DecrementNumericalPWM.
@@ -10,8 +10,8 @@
 
 pfTransmitter.connectIrSenderLed(AnalogPin.P0, false)
 
-let test = 6;
-let testMax = test;
+let test = 3;
+let testMax = 6;
 basic.showNumber(test)
 
 input.onButtonPressed(Button.AB, function () {
@@ -36,8 +36,10 @@ input.onButtonPressed(Button.A, function () {
         pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
     } else if (test == 3) {
         pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Forward, PfComboDirect.Float)
-        basic.pause(10000)
+        basic.pause(5000)
         pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Float, PfComboDirect.Float)
+        basic.pause(2000)
+        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.BrakeThenFloat, PfComboDirect.BrakeThenFloat)
     } else if (test == 4) {
         for (let n = 0; n < 7; n++){
             pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.IncrementPWM)
@@ -94,8 +96,10 @@ input.onButtonPressed(Button.B, function () {
         pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Float, PfComboDirect.Float)
     } else if (test == 3) {
         pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Forward7, PfComboPWM.Forward1)
-        basic.pause(10000)
+        basic.pause(5000)
         pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Float, PfComboPWM.Float)
+        basic.pause(2000)
+        pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.BrakeThenFloat, PfComboPWM.BrakeThenFloat)
     } else if (test == 4) {
         for (let n = 0; n < 7; n++) {
             pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.IncrementPWM)
