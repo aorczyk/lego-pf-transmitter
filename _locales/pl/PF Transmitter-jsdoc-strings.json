@@ -14,7 +14,7 @@
   "pfTransmitter.singleOutputMode|param|channel": "kanał odbiornika podczerwieni, np. PfChannel.Channel1",
   "pfTransmitter.singleOutputMode|param|command": "komenda trybu Single Output, np. PfSingleOutput.Forward7",
   "pfTransmitter.singleOutputMode|param|output": "wyjście odbiornika podczerwieni, np. PfOutput.Red",
-  "pfTransmitter.advancedSettings": "Zaawansowane ustawienia.",
+  "pfTransmitter.advancedSettings": "Zaawansowane ustawienia - używaj tylko wtedy, gdy coś nie działa poprawnie.",
   "pfTransmitter.advancedSettings|param|afterSignalPause": "przerwa przed wysłaniem kolejnego sygnału w pakiecie (ms), np. 0",
   "pfTransmitter.advancedSettings|param|repeatCommandAfter": "czas, po którym powtarzana jest komenda combo (ms), np. 500",
   "pfTransmitter.advancedSettings|param|signalRepeatNumber": "liczba sygnałów w pakiecie, np. 5"
