@@ -10,7 +10,7 @@
 
 pfTransmitter.connectIrSenderLed(AnalogPin.P0, false)
 
-let test = 3;
+let test = 0;
 let testMax = 6;
 basic.showNumber(test)
 
