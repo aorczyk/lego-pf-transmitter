@@ -35,10 +35,12 @@ input.onButtonPressed(Button.A, function () {
         pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Forward7)
         pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
     } else if (test == 3) {
-        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Forward, PfComboDirect.Float)
+        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Forward, PfComboDirect.Backward)
         basic.pause(5000)
         pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Float, PfComboDirect.Float)
         basic.pause(2000)
+        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Backward, PfComboDirect.Forward)
+        basic.pause(5000)
         pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.BrakeThenFloat, PfComboDirect.BrakeThenFloat)
     } else if (test == 4) {
         for (let n = 0; n < 7; n++){
@@ -99,6 +101,8 @@ input.onButtonPressed(Button.B, function () {
         basic.pause(5000)
         pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Float, PfComboPWM.Float)
         basic.pause(2000)
+        pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Forward1, PfComboPWM.Forward7)
+        basic.pause(5000)
         pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.BrakeThenFloat, PfComboPWM.BrakeThenFloat)
     } else if (test == 4) {
         for (let n = 0; n < 7; n++) {
