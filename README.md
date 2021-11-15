@@ -3,24 +3,31 @@
 Control your LEGO Power Functions devices simultaneously with Micro:bit and an 940 nm emitting diode. 
 
 ### Features:
-- all PF commands implemented
+- all Power Functions commands were implemented
 - controlling multiple devices at the same time
-- quick change the state of the channel output
+- precise control (quick change the state of the channel output)
 
-### :warning: Warning!
+### References:
+- [LEGO Power Functions RC](https://www.philohome.com/pf/LEGO_Power_Functions_RC.pdf)
+
+## :warning: Warning!
 **The light (solar :sunny: or lamp :bulb:) falling on the diode or ir receiver interferes with the signal transmission.**
 
-### Command execution delay time
+## Use as Extension
+
+This repository can be added as an **extension** in MakeCode.
+
+* open [https://makecode.microbit.org/](https://makecode.microbit.org/)
+* click on **New Project**
+* click on **Extensions** under the gearwheel menu
+* search for **https://github.com/aorczyk/lego-pf-transmitter** and import
+
+## Command execution delay time
 Every command sending to receiver is a package of five the same signals. 
 Command execution delay time depends of the signal length (maximum length is 16ms) and light interference to the signal (which may result in the first signals not being received). 
 It could be different each time. 
 The maximum delay time will be if the receiver only receives the fifth signal, is around: 16*5 = 80ms + time for processing the signals.
 
-## Installation
-
-1. Open MakeCode and select '+ Extensions' in the 'Advanced' menu. 
-2. Enter the project URL https://github.com/aorczyk/lego-pf-transmitter in the search field.
-3. Select the `PF Transmitter` extension.
 
 # Documentation
 
@@ -155,7 +162,7 @@ pfTransmitter.advancedSettings(500, 0, 5)
 
 ## MakeCode Example
 
-```blocks
+``` blocks
 pfTransmitter.connectIrSenderLed(AnalogPin.P0)
 
 input.onButtonPressed(Button.A, function() {
