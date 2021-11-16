@@ -150,14 +150,14 @@ pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Forward7, PfComboPWM.F
 Advanced settings.
 
 ```sig
-pfTransmitter.advancedSettings(500, 0, 5)
+pfTransmitter.advancedSettings(repeatCommandAfter, afterSignalPause, signalRepeatNumber)
 ```
 
 ### Parameters
 
-- `repeatCommandAfter` - the time after which combo command is repeated (ms)
-- `afterSignalPause` - the pause before sending next signal in package (ms)
-- `signalRepeatNumber` - the number of signals in package
+- `repeatCommandAfter` - the time after which combo command is repeated (ms), default: 500
+- `afterSignalPause` - the pause before sending next signal in package (ms), default: 0
+- `signalRepeatNumber` - the number of signals in package, default: 5
 
 
 ## MakeCode Example

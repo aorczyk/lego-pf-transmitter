@@ -282,8 +282,6 @@ namespace pfTransmitter {
             schedulerIsWorking = true;
 
             control.inBackground(function() {
-                let start = input.runningTime();
-
                 while(tasks.length > 0){
                     let i = 0;
                     if (mixDatagrams) {
@@ -333,7 +331,7 @@ namespace pfTransmitter {
 
     /**
      * Single output mode (speed remote control).
-     * This mode is able to control: One output at a time with PWM or clear/set/toggle control pins.
+     * This mode is able to control: one output at a time with PWM or clear/set/toggle control pins.
      * This mode has no timeout for lost IR on all commands except "full forward" and "full backward".
      * @param channel the PF receiver channel, eg: PfChannel.Channel1
      * @param output the PF receiver output, eg: PfOutput.Red
