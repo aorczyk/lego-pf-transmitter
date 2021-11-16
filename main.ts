@@ -335,7 +335,7 @@ namespace pfTransmitter {
      * This mode has no timeout for lost IR on all commands except "full forward" and "full backward".
      * @param channel the PF receiver channel, eg: PfChannel.Channel1
      * @param output the PF receiver output, eg: PfOutput.Red
-     * @param command the Single Output Mode command, eg: PfSingleOutput.Forward7
+     * @param command the Single Output Mode command, eg: PfSingleOutput.Float
      */
     //% blockId="pf_transmitter_single_output_mode"
     //% block="set speed : channel %channel output %output command %command"
@@ -356,8 +356,8 @@ namespace pfTransmitter {
      * Controlling the state of both output A and B at the same time.
      * This mode has timeout for lost IR.
      * @param channel the PF receiver channel, eg: PfChannel.Channel1
-     * @param red the red output Combo Direct Mode command, eg: PfComboDirect.Forward
-     * @param blue the blue output Combo Direct Mode command, eg: PfComboDirect.Forward
+     * @param red the red output Combo Direct Mode command, eg: PfComboDirect.Float
+     * @param blue the blue output Combo Direct Mode command, eg: PfComboDirect.Float
      */
     //% blockId="pf_transmitter_combo_direct_mode"
     //% block="set state of outputs : channel %channel red %red blue %blue"
@@ -374,8 +374,8 @@ namespace pfTransmitter {
      * Controlling the state of both output A and B at the same time.
      * This mode has timeout for lost IR.
      * @param channel the PF receiver channel, eg: PfChannel.Channel1
-     * @param red the red output Combo PWM Mode command, eg: PfComboPWM.Forward7
-     * @param blue the blue output Combo PWM Mode command, eg: PfComboPWM.Forward7
+     * @param red the red output Combo PWM Mode command, eg: PfComboPWM.Float
+     * @param blue the blue output Combo PWM Mode command, eg: PfComboPWM.Float
      */
     //% blockId="pf_transmitter_combo_pwm_mode"
     //% block="set speed of outputs : channel %channel red %red blue %blue"
