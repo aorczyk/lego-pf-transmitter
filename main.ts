@@ -1,6 +1,6 @@
 /**
  * Power Functions Transmitter - programmable remote control.
- * Sends commands to LEGO Power Functions infrared receiver.
+ * Sending commands to LEGO Power Functions infrared receiver.
  * 
  * LEGO Power Functions RC documentation: https://www.philohome.com/pf/LEGO_Power_Functions_RC.pdf
  * 
