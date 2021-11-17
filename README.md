@@ -185,3 +185,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 Copyright (C) 2021 Adam Orczyk
 
 Licensed under the MIT License (MIT). See LICENSE file for more details.
+
+## Supported targets
+
+* for PXT/microbit
