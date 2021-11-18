@@ -1,4 +1,32 @@
-/*  Tests: 
+/**
+ * PF Transmitter tests
+ */
+
+pfTransmitter.connectIrSenderLed(AnalogPin.P0, true)
+
+/*  Automated  tests */
+
+if (true){
+    led.plot(0,2)
+    pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Forward7)
+    basic.pause(1000)
+    pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
+    basic.pause(1000)
+
+    led.plot(1, 2)
+    pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Forward, PfComboDirect.Forward)
+    basic.pause(1000)
+    pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Float, PfComboDirect.Float)
+    basic.pause(1000)
+
+    led.plot(2, 2)
+    pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Forward7, PfComboPWM.Forward1)
+    basic.pause(1000)
+    pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.BrakeThenFloat, PfComboPWM.BrakeThenFloat)
+    basic.pause(1000)
+}
+
+/*  Manual tests:
     0. singleOutputMode - two outputs in the same time: A - Increment, B - Decrement.
     1. singleOutputMode - two outputs in the same time: A - on, B - off.
     2. On and off: A - singleOutputMode, B - comboDirectMode.
@@ -7,8 +35,6 @@
     5. singleOutputMode: FullForward -> FullBackward -> ToggleDirection -> Float -> Backward7 -> ToggleFullForwardBackward -> Float.
     6. singleOutputMode: IncrementNumericalPWM, DecrementNumericalPWM.
 */
-
-pfTransmitter.connectIrSenderLed(AnalogPin.P0, false)
 
 let test = 0;
 let testMax = 6;

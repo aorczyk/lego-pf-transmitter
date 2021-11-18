@@ -145,15 +145,18 @@ const enum PfComboPWM {
 //% color=#f68420 icon="\uf1eb" block="PF Transmitter"
 namespace pfTransmitter {
     let irLed: InfraredLed;
-    let toggleByChannel: number[] = [1, 1, 1, 1];
-    let schedulerIsWorking: boolean = false;
-    let tasks: task[] = [];
-    let intervalId: number[] = [null, null, null, null];
-    let settings = {
-        repeatCommandAfter: 500,
-        afterSignalPause: 0,
-        signalRepeatNumber: 5
+    let toggleByChannel: number[];
+    let schedulerIsWorking: boolean;
+    let tasks: task[];
+    let intervalId: number[];
+
+    type Settings = {
+        repeatCommandAfter: number,
+        afterSignalPause: number,
+        signalRepeatNumber: number,
     }
+
+    let settings: Settings;
 
     class InfraredLed {
         private pin: AnalogPin;
@@ -325,6 +328,16 @@ namespace pfTransmitter {
     //% pin.fieldOptions.tooltips="false"
     //% weight=90
     export function connectIrSenderLed(pin: AnalogPin, debug = false): void {
+        toggleByChannel = [1, 1, 1, 1];
+        schedulerIsWorking = false;
+        tasks = [];
+        intervalId = [null, null, null, null];
+        settings = {
+            repeatCommandAfter: 500,
+            afterSignalPause: 0,
+            signalRepeatNumber: 5
+        }
+        
         irLed = new InfraredLed(pin);
         irLed.debug = debug
     }
