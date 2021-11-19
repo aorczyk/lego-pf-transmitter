@@ -2,29 +2,98 @@
  * PF Transmitter tests
  */
 
-pfTransmitter.connectIrSenderLed(AnalogPin.P0, true)
+pfTransmitter.connectIrSenderLed(AnalogPin.P0, false)
 
 /*  Automated  tests */
 
 if (true){
-    led.plot(0,2)
-    pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Forward7)
-    basic.pause(1000)
-    pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
-    basic.pause(1000)
+    // Test: singleOutputMode
 
-    led.plot(1, 2)
-    pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Forward, PfComboDirect.Forward)
-    basic.pause(1000)
-    pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Float, PfComboDirect.Float)
-    basic.pause(1000)
+    if (true){
+        pfTransmitter.singleOutputMode(PfChannel.Channel1, PfOutput.Red, PfSingleOutput.Forward7)
+        control.assert(
+            pfTransmitter.lastCommand === 71,
+            "singleOutputMode: Channel1, Red, Forward7" + `\nWrong command: ${pfTransmitter.lastCommand}`
+        );
 
-    led.plot(2, 2)
-    pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Forward7, PfComboPWM.Forward1)
-    basic.pause(1000)
-    pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.BrakeThenFloat, PfComboPWM.BrakeThenFloat)
-    basic.pause(1000)
+        basic.pause(600)
+
+        pfTransmitter.singleOutputMode(PfChannel.Channel1, PfOutput.Red, PfSingleOutput.Float)
+        control.assert(
+            pfTransmitter.lastCommand === 2112,
+            "singleOutputMode: Channel1, Red, Float" + `\nWrong command: ${pfTransmitter.lastCommand}`
+        );
+
+        // Test different channel and toggle bit.
+
+        pfTransmitter.singleOutputMode(PfChannel.Channel2, PfOutput.Red, PfSingleOutput.Forward7)
+        control.assert(
+            pfTransmitter.lastCommand === 327,
+            "singleOutputMode: Channel2, Red, Forward7" + `\nWrong command: ${pfTransmitter.lastCommand}`
+        );
+
+        // Different toggle bit
+        pfTransmitter.singleOutputMode(PfChannel.Channel2, PfOutput.Red, PfSingleOutput.Forward7)
+        control.assert(
+            pfTransmitter.lastCommand === 2375,
+            "singleOutputMode: Channel2, Red, Forward7" + `\nWrong command: ${pfTransmitter.lastCommand}`
+        );
+
+        // The same as first
+        pfTransmitter.singleOutputMode(PfChannel.Channel2, PfOutput.Red, PfSingleOutput.Forward7)
+        control.assert(
+            pfTransmitter.lastCommand === 327,
+            "singleOutputMode: Channel2, Red, Forward7" + `\nWrong command: ${pfTransmitter.lastCommand}`
+        );
+
+        basic.pause(600)
+    }
+
+    // Test: comboDirectMode
+
+    if (true){
+        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Forward, PfComboDirect.Forward)
+        control.assert(
+            pfTransmitter.lastCommand === 21,
+            "comboDirectMode: Channel1, Forward, Forward" + `\nWrong command: ${pfTransmitter.lastCommand}`
+        );
+
+        // Command should be repeated once.
+        basic.pause(600)
+
+        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Float, PfComboDirect.Float)
+        control.assert(
+            pfTransmitter.lastCommand === 16,
+            "comboDirectMode: Channel1, Float, Float" + `\nWrong command: ${pfTransmitter.lastCommand}`
+        );
+
+        // Command should be repeated once.
+        basic.pause(600)
+    }
+
+    // Test: comboPWMMode
+
+    if (true){
+        pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.Forward7, PfComboPWM.Forward1)
+        control.assert(
+            pfTransmitter.lastCommand === 3095,
+            "comboPWMMode: Channel1, Forward7, Forward1" + `\nWrong command: ${pfTransmitter.lastCommand}`
+        );
+
+        // Command should be repeated once.
+        basic.pause(600)
+
+        pfTransmitter.comboPWMMode(PfChannel.Channel1, PfComboPWM.BrakeThenFloat, PfComboPWM.BrakeThenFloat)
+        control.assert(
+            pfTransmitter.lastCommand === 3208,
+            "comboPWMMode: Channel1, BrakeThenFloat, BrakeThenFloat" + `\nWrong command: ${pfTransmitter.lastCommand}`
+        );
+
+        // Command should be repeated once.
+        basic.pause(600)
+    }
 }
+
 
 /*  Manual tests:
     0. singleOutputMode - two outputs in the same time: A - Increment, B - Decrement.

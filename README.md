@@ -36,11 +36,12 @@ The maximum delay time will be if the receiver only receives the fifth signal, i
 Connects infrared 940 nm emitting diode at specified analog pin. 
 
 ```sig
-pfTransmitter.connectIrSenderLed(AnalogPin.P0)
+pfTransmitter.connectIrSenderLed(AnalogPin.P0, false)
 ```
 ### Parameters
 
 - `pin` - the analog pin where ir diode is connected
+- `debug` - turn on debug mode if set to true (false by default). In the console, it prints commands in the following format: "1100-0001-0111-0101 = 1047"
 
 ## pfTransmitter.singleOutputMode
 

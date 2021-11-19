@@ -149,6 +149,7 @@ namespace pfTransmitter {
     let schedulerIsWorking: boolean;
     let tasks: task[];
     let intervalId: number[];
+    export let lastCommand: number;
 
     type Settings = {
         repeatCommandAfter: number,
@@ -213,7 +214,9 @@ namespace pfTransmitter {
             for (let i = 15; i >= 0; i--){
                 let bit = (datagram & (1 << i)) === 0 ? 0 : 1;
 
-                bits += (i > 0 && i % 4 == 0) ? bit + '-' : bit;
+                if (this.debug) {
+                    bits += (i > 0 && i % 4 == 0) ? bit + '-' : bit;
+                }
 
                 if (bit == 0) {
                     this.transmitBit(PF_MARK_BIT, PF_LOW_BIT);
@@ -225,7 +228,7 @@ namespace pfTransmitter {
             this.transmitBit(PF_MARK_BIT, PF_START_BIT);
 
             if (this.debug) {
-                serial.writeString(bits + "\n")
+                serial.writeString(bits + ` = ${lastCommand}\n`)
             }
         }
     }
@@ -254,6 +257,7 @@ namespace pfTransmitter {
     function sendPacket(command: number, mixDatagrams: boolean = false) {
         let taskType = 0b001100110000 & command;
         command = addToggle(command);
+        lastCommand = command;
 
         if (mixDatagrams){
             // Prevents from mixing two commands to the same output ex. start and stop.
@@ -320,14 +324,15 @@ namespace pfTransmitter {
     /**
      * Connects to the IR-emitting diode at the specified pin. Warning! The light (solar or lamp) falling on the diode or ir receiver interferes with the signal transmission.
      * @param pin IR diode pin, eg: AnalogPin.P0
+     * @param debug turn on debug mode if set to true (false by default), eg: false
      */
     //% blockId="pf_transmitter_infrared_sender_connect"
-    //% block="connect IR sender diode at pin %pin"
+    //% block="connect IR sender diode at pin %pin || debug %debug"
     //% pin.fieldEditor="gridpicker"
     //% pin.fieldOptions.columns=4
     //% pin.fieldOptions.tooltips="false"
     //% weight=90
-    export function connectIrSenderLed(pin: AnalogPin, debug = false): void {
+    export function connectIrSenderLed(pin: AnalogPin, debug: boolean = false): void {
         toggleByChannel = [1, 1, 1, 1];
         schedulerIsWorking = false;
         tasks = [];
