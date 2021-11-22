@@ -13,15 +13,6 @@ Control your LEGO Power Functions devices simultaneously with Micro:bit and an 9
 ## :warning: Warning!
 **The light (solar :sunny: or lamp :bulb:) falling on the diode or ir receiver interferes with the signal transmission.**
 
-## Use as Extension
-
-This repository can be added as an **extension** in MakeCode.
-
-* open [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* click on **New Project**
-* click on **Extensions** under the gearwheel menu
-* search for **https://github.com/aorczyk/lego-pf-transmitter** and import
-
 ## Command execution delay time
 Every command sending to receiver is a package of five the same signals. 
 Command execution delay time depends of the signal length (maximum length is 16ms) and light interference to the signal (which may result in the first signals not being received). 
