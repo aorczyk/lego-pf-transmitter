@@ -412,7 +412,7 @@ namespace pfTransmitter {
      * @param signalRepeatNumber the number of signals in package, eg: 5
      */
     //% blockId=pf_transmitter_settings
-    //% block="PF Transmitter advanced settings: repeat command after %repeatCommandAfter pause after signal %afterSignalPause signal repeat number %signalRepeatNumber"
+    //% block="advanced settings: repeat command after %repeatCommandAfter pause after signal %afterSignalPause signal repeat number %signalRepeatNumber"
     //% weight=40
     export function advancedSettings(
         repeatCommandAfter: number = 500,
