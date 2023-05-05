@@ -80,7 +80,7 @@ const enum PfSingleOutput {
     IncrementNumericalPWM = 0b1100010,
     //% block="Decrement Numerical PWM"
     DecrementNumericalPWM = 0b1100011,
-    
+
     //% block="Clear C1 (negative logic – C1 high)"
     ClearC1 = 0b1101001,
     //% block="Set C1 (negative logic – C1 low)"
@@ -150,6 +150,7 @@ namespace pfTransmitter {
     let tasks: task[];
     let intervalId: number[];
     export let lastCommand: number;
+    let mixDatagrams = false;
 
     type Settings = {
         repeatCommandAfter: number,
@@ -162,7 +163,6 @@ namespace pfTransmitter {
     class InfraredLed {
         private pin: AnalogPin;
         private waitCorrection: number;
-        public debug: boolean = false;
 
         constructor(pin: AnalogPin) {
             this.pin = pin;
@@ -207,16 +207,16 @@ namespace pfTransmitter {
             const PF_HIGH_BIT = 711 - PF_MARK_BIT - this.waitCorrection;
             const PF_START_BIT = 1184 - PF_MARK_BIT - this.waitCorrection;
 
-            let bits = '';
+            // Debug
+            // let bits = ''; // For debug only.
 
             this.transmitBit(PF_MARK_BIT, PF_START_BIT);
 
-            for (let i = 15; i >= 0; i--){
+            for (let i = 15; i >= 0; i--) {
                 let bit = (datagram & (1 << i)) === 0 ? 0 : 1;
 
-                if (this.debug) {
-                    bits += (i > 0 && i % 4 == 0) ? bit + '-' : bit;
-                }
+                // Debug
+                // bits += (i > 0 && i % 4 == 0) ? bit + '-' : bit; // For debug only.
 
                 if (bit == 0) {
                     this.transmitBit(PF_MARK_BIT, PF_LOW_BIT);
@@ -227,80 +227,68 @@ namespace pfTransmitter {
 
             this.transmitBit(PF_MARK_BIT, PF_START_BIT);
 
-            if (this.debug) {
-                serial.writeString(bits + ` = ${lastCommand}\n`)
-            }
+            // Debug
+            // serial.writeString(bits + ` = ${lastCommand}\n`) // For debug only.
         }
     }
 
     // --- Command sender ---
     // To achieve greater parallelization of signals, mixes ir signals when more than one command is run one by one.
-    
+
     interface task {
         handler: () => void;
         type: number;
+        counter: number;
     }
 
-    function getRandomInt(min: number, max: number) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-    
-    function addToggle(command: number){
+    function addToggle(command: number) {
         let channel = (0b001100000000 & command) >>> 8;
         toggleByChannel[channel] = 1 - toggleByChannel[channel];
 
         return (toggleByChannel[channel] << 11) | command;
     }
 
-    function sendPacket(command: number, mixDatagrams: boolean = false) {
+    function sendPacket(command: number, mix: boolean = false) {
+        mixDatagrams = mix;
         let taskType = 0b001100110000 & command;
         command = addToggle(command);
         lastCommand = command;
 
-        if (mixDatagrams){
+        if (mixDatagrams) {
             // Prevents from mixing two commands to the same output ex. start and stop.
-            while (tasks.filter(x => { return x.type == taskType}).length > 0) {
-                basic.pause(20)
+            while (tasks.some(x => x.type == taskType)) {
+                basic.pause(20) // Passes control to the micro:bit scheduler. https://makecode.microbit.org/device/reactive
             }
         }
 
         // "Five exactly matching messages (if no other buttons are pressed or released) are sent ... ."
         // "(if no other buttons are pressed or released)" - this is not handle now, every command is sent one by one or mixed. It should be handled by receiver.
-        for (let i = 0; i < settings.signalRepeatNumber; i++) {
-            tasks.push({
-                handler: () => {
-                    irLed.sendCommand(command)
-                }, 
-                type: taskType
-            })
-        }
+        tasks.push({
+            handler: () => {
+                irLed.sendCommand(command)
+            },
+            type: taskType,
+            counter: settings.signalRepeatNumber
+        })
 
-        // Pause after each command packet - seems not needed.
-        // if (!mixDatagrams) {
-        //     tasks.push({
-        //         handler: () => {},
-        //         type: taskType
-        //     })
-        // }
-
-        if (!schedulerIsWorking){
+        if (!schedulerIsWorking) {
             schedulerIsWorking = true;
 
-            control.inBackground(function() {
-                while(tasks.length > 0){
-                    let i = 0;
-                    if (mixDatagrams) {
-                        i = getRandomInt(0, tasks.length - 1);
-                    }
+            control.inBackground(function () {
+                let i = 0;
+                while (tasks.length > 0) {
                     tasks[i].handler();
-                    tasks.splice(i, 1);
-                    
-                    // Pause time after each signal.
+                    tasks[i].counter -= 1;
+                    if (!tasks[i].counter) {
+                        tasks.splice(i, 1);
+                    }
+
+                    // Pause time after each signal to process it by IR receiver.
                     basic.pause(settings.afterSignalPause)
+
+                    i = (mixDatagrams && i < tasks.length - 1) ? i + 1 : 0;
                 }
-                
+
                 schedulerIsWorking = false;
             })
         }
@@ -324,15 +312,14 @@ namespace pfTransmitter {
     /**
      * Connects to the IR-emitting diode at the specified pin. Warning! The light (solar or lamp) falling on the diode or ir receiver interferes with the signal transmission.
      * @param pin IR diode pin, eg: AnalogPin.P0
-     * @param debug turn on debug mode if set to true (false by default), eg: false
      */
     //% blockId="pf_transmitter_infrared_sender_connect"
-    //% block="connect IR sender diode at pin %pin || debug %debug"
+    //% block="connect IR sender diode at pin %pin"
     //% pin.fieldEditor="gridpicker"
     //% pin.fieldOptions.columns=4
     //% pin.fieldOptions.tooltips="false"
     //% weight=90
-    export function connectIrSenderLed(pin: AnalogPin, debug: boolean = false): void {
+    export function connectIrSenderLed(pin: AnalogPin): void {
         toggleByChannel = [1, 1, 1, 1];
         schedulerIsWorking = false;
         tasks = [];
@@ -342,9 +329,8 @@ namespace pfTransmitter {
             afterSignalPause: 0,
             signalRepeatNumber: 5
         }
-        
+
         irLed = new InfraredLed(pin);
-        irLed.debug = debug
     }
 
     /**
@@ -358,15 +344,9 @@ namespace pfTransmitter {
     //% blockId="pf_transmitter_single_output_mode"
     //% block="set speed : channel %channel output %output command %command"
     //% weight=80
-    export function singleOutputMode(channel: PfChannel, output: PfOutput, command: PfSingleOutput){
-        let mixDatagrams = true;
-
+    export function singleOutputMode(channel: PfChannel, output: PfOutput, command: PfSingleOutput) {
         // Because: Toggle bit is verified on receiver if increment/decrement/toggle command is received.
-        if ([0b1100100, 0b1100101].some(x => x == command)){
-            mixDatagrams = false
-        }
-
-        sendPacket((channel << 8) | command | (output << 4), mixDatagrams)
+        sendPacket((channel << 8) | command | (output << 4), ![0b1100100, 0b1100101].some(x => x == command))
     }
 
     /**
@@ -380,7 +360,7 @@ namespace pfTransmitter {
     //% blockId="pf_transmitter_combo_direct_mode"
     //% block="set state of outputs : channel %channel red %red blue %blue"
     //% weight=70
-    export function comboDirectMode(channel: PfChannel, red: PfComboDirect, blue: PfComboDirect){
+    export function comboDirectMode(channel: PfChannel, red: PfComboDirect, blue: PfComboDirect) {
         let command: number = (blue << 2) | red;
         let datagram = (channel << 8) | 0b00010000 | command;
 

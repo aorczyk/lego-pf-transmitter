@@ -2,7 +2,7 @@
  * PF Transmitter tests
  */
 
-pfTransmitter.connectIrSenderLed(AnalogPin.P0, false)
+pfTransmitter.connectIrSenderLed(AnalogPin.P0)
 
 /*  Automated  tests */
 
@@ -129,6 +129,10 @@ input.onButtonPressed(Button.A, function () {
     } else if (test == 2) {
         pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Forward7)
         pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Forward7)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Forward7)
+        pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
     } else if (test == 3) {
         pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Forward, PfComboDirect.Backward)
         basic.pause(5000)
@@ -189,6 +193,10 @@ input.onButtonPressed(Button.B, function () {
         pfTransmitter.singleOutputMode(0, 0, PfSingleOutput.Float)
         pfTransmitter.singleOutputMode(0, 1, PfSingleOutput.Float)
     } else if (test == 2) {
+        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Forward, PfComboDirect.Float)
+        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Float, PfComboDirect.Float)
+        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Forward, PfComboDirect.Float)
+        pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Float, PfComboDirect.Float)
         pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Forward, PfComboDirect.Float)
         pfTransmitter.comboDirectMode(PfChannel.Channel1, PfComboDirect.Float, PfComboDirect.Float)
     } else if (test == 3) {
