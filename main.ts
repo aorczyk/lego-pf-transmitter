@@ -334,6 +334,57 @@ namespace pfTransmitter {
     }
 
     /**
+     * Set the motor speed as a number (speed remote control).
+     * @param channel the PF receiver channel, eg: PfChannel.Channel1
+     * @param output the PF receiver output, eg: PfOutput.Red
+     * @param speed the number from a range [-7,7], eg: 7
+     */
+    //% blockId="pf_transmitter_set_speed"
+    //% block="set speed : channel %channel output %output speed %speed"
+    //% weight=89
+    export function setSpeed(channel: PfChannel, output: PfOutput, speed: number) {
+        if (speed > 7) {
+            speed = 7
+        } else if (speed < -7) {
+            speed = 7
+        }
+
+        let commandBySpeed:number[] = [
+            //"Backward step 7"
+            0b1001001,
+            //"Backward step 6"
+            0b1001010,
+            //"Backward step 5"
+            0b1001011,
+            //"Backward step 4"
+            0b1001100,
+            //"Backward step 3"
+            0b1001101,
+            //"Backward step 2"
+            0b1001110,
+            //"Backward step 1"
+            0b1001111,
+            //"Float"
+            0b1000000,
+            //"Forward step 1"
+            0b1000001,
+            //"Forward step 2"
+            0b1000010,
+            //"Forward step 3"
+            0b1000011,
+            //"Forward step 4"
+            0b1000100,
+            //"Forward step 5"
+            0b1000101,
+            //"Forward step 6"
+            0b1000110,
+            //"Forward step 7"
+            0b1000111,
+        ]
+        singleOutputMode(channel, output, commandBySpeed[speed + 7])
+    }
+
+    /**
      * Single output mode (speed remote control).
      * This mode is able to control: one output at a time with PWM or clear/set/toggle control pins.
      * This mode has no timeout for lost IR on all commands except "full forward" and "full backward".
@@ -342,7 +393,7 @@ namespace pfTransmitter {
      * @param command the Single Output Mode command, eg: PfSingleOutput.Float
      */
     //% blockId="pf_transmitter_single_output_mode"
-    //% block="set speed : channel %channel output %output command %command"
+    //% block="single output : channel %channel output %output command %command"
     //% weight=80
     export function singleOutputMode(channel: PfChannel, output: PfOutput, command: PfSingleOutput) {
         // Because: Toggle bit is verified on receiver if increment/decrement/toggle command is received.
@@ -358,7 +409,7 @@ namespace pfTransmitter {
      * @param blue the blue output Combo Direct Mode command, eg: PfComboDirect.Float
      */
     //% blockId="pf_transmitter_combo_direct_mode"
-    //% block="set state of outputs : channel %channel red %red blue %blue"
+    //% block="combo direct : channel %channel red %red blue %blue"
     //% weight=70
     export function comboDirectMode(channel: PfChannel, red: PfComboDirect, blue: PfComboDirect) {
         let command: number = (blue << 2) | red;
@@ -376,7 +427,7 @@ namespace pfTransmitter {
      * @param blue the blue output Combo PWM Mode command, eg: PfComboPWM.Float
      */
     //% blockId="pf_transmitter_combo_pwm_mode"
-    //% block="set speed of outputs : channel %channel red %red blue %blue"
+    //% block="combo PWM : channel %channel red %red blue %blue"
     //% weight=60
     export function comboPWMMode(channel: PfChannel, red: PfComboPWM, blue: PfComboPWM) {
         let command: number = (blue << 4) | red;
