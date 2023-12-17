@@ -390,8 +390,8 @@ namespace pfTransmitter {
      * @param channel the PF receiver channel, eg: PfChannel.Channel1
      * @param output the PF receiver output, eg: PfOutput.Red
      */
-    //% blockId="pf_transmitter_set_speed"
-    //% block="brake : channel %channel output %output speed %speed"
+    //% blockId="pf_transmitter_brake"
+    //% block="brake : channel %channel output %output"
     //% weight=88
     export function brake(channel: PfChannel, output: PfOutput) {
         singleOutputMode(channel, output, 0b1001000)
