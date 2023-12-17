@@ -341,6 +341,7 @@ namespace pfTransmitter {
      */
     //% blockId="pf_transmitter_set_speed"
     //% block="set speed : channel %channel output %output speed %speed"
+    //% speed.min=-7 speed.max=7
     //% weight=89
     export function setSpeed(channel: PfChannel, output: PfOutput, speed: number) {
         if (speed > 7) {
@@ -382,6 +383,18 @@ namespace pfTransmitter {
             0b1000111,
         ]
         singleOutputMode(channel, output, commandBySpeed[speed + 7])
+    }
+
+    /**
+     * Brake then float (speed remote control).
+     * @param channel the PF receiver channel, eg: PfChannel.Channel1
+     * @param output the PF receiver output, eg: PfOutput.Red
+     */
+    //% blockId="pf_transmitter_set_speed"
+    //% block="brake : channel %channel output %output speed %speed"
+    //% weight=88
+    export function brake(channel: PfChannel, output: PfOutput) {
+        singleOutputMode(channel, output, 0b1001000)
     }
 
     /**
