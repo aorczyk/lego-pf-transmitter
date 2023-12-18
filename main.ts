@@ -337,19 +337,13 @@ namespace pfTransmitter {
      * Set the motor speed as a number (speed remote control).
      * @param channel the PF receiver channel, eg: PfChannel.Channel1
      * @param output the PF receiver output, eg: PfOutput.Red
-     * @param speed the number from a range [-7,7], eg: 7
+     * @param speed the number from a range [-7,7], eg: 0
      */
     //% blockId="pf_transmitter_set_speed"
     //% block="set speed : channel %channel output %output speed %speed"
     //% speed.min=-7 speed.max=7
     //% weight=89
     export function setSpeed(channel: PfChannel, output: PfOutput, speed: number) {
-        if (speed > 7) {
-            speed = 7
-        } else if (speed < -7) {
-            speed = 7
-        }
-
         let commandBySpeed:number[] = [
             //"Backward step 7"
             0b1001001,
@@ -380,8 +374,15 @@ namespace pfTransmitter {
             //"Forward step 6"
             0b1000110,
             //"Forward step 7"
-            0b1000111,
+            0b1000111
         ]
+
+        if (speed > 7) {
+            speed = 7
+        } else if (speed < -7) {
+            speed = -7
+        }
+
         singleOutputMode(channel, output, commandBySpeed[speed + 7])
     }
 
