@@ -4,7 +4,7 @@
  * 
  * LEGO Power Functions RC documentation: https://www.philohome.com/pf/LEGO_Power_Functions_RC.pdf
  * 
- * (c) 2021, Adam Orczyk
+ * (c) 2023, Adam Orczyk
  */
 
 const enum PfChannel {
@@ -335,15 +335,17 @@ namespace pfTransmitter {
 
     /**
      * Set the motor speed as a number (speed remote control).
-     * @param channel the PF receiver channel, eg: PfChannel.Channel1
-     * @param output the PF receiver output, eg: PfOutput.Red
+     * @param channel the PF receiver channel, eg: 1
+     * @param output the PF receiver output, eg: 1
      * @param speed the number from a range [-7,7], eg: 0
      */
     //% blockId="pf_transmitter_set_speed"
     //% block="set speed : channel %channel output %output speed %speed"
+    //% channel.min=1 channel.max=4
+    //% output.min=1 output.max=2
     //% speed.min=-7 speed.max=7
     //% weight=89
-    export function setSpeed(channel: PfChannel, output: PfOutput, speed: number) {
+    export function setSpeed(channel: number, output: number, speed: number) {
         let commandBySpeed:number[] = [
             //"Backward step 7"
             0b1001001,
@@ -383,19 +385,21 @@ namespace pfTransmitter {
             speed = -7
         }
 
-        singleOutputMode(channel, output, commandBySpeed[speed + 7])
+        singleOutputMode(channel - 1, output - 1, commandBySpeed[speed + 7])
     }
 
     /**
      * Brake then float (speed remote control).
-     * @param channel the PF receiver channel, eg: PfChannel.Channel1
-     * @param output the PF receiver output, eg: PfOutput.Red
+     * @param channel the PF receiver channel, eg: 1
+     * @param output the PF receiver output, eg: 1
      */
     //% blockId="pf_transmitter_brake"
     //% block="brake : channel %channel output %output"
+    //% channel.min=1 channel.max=4
+    //% output.min=1 output.max=2
     //% weight=88
-    export function brake(channel: PfChannel, output: PfOutput) {
-        singleOutputMode(channel, output, 0b1001000)
+    export function brake(channel: number, output: number) {
+        singleOutputMode(channel - 1, output - 1, 0b1001000)
     }
 
     /**
