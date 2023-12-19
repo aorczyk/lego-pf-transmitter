@@ -33,6 +33,31 @@ pfTransmitter.connectIrSenderLed(AnalogPin.P0)
 
 - `pin` - the analog pin where ir diode is connected
 
+## pfTransmitter.setSpeed
+
+Set the motor speed as a number.
+
+```sig
+pfTransmitter.setSpeed(1, 1, 7)
+```
+### Parameters
+
+- `channel` - the channel, a number from `1` to `4`
+- `output` - the output, a number: `1` (red), `2` (blue)
+- `speed` - the speed value, a number from `-7` to `7`
+
+## pfTransmitter.brake
+
+Brake then float the motor.
+
+```sig
+pfTransmitter.brake(1, 1)
+```
+### Parameters
+
+- `channel` - the channel, a number from `1` to `4`
+- `output` - the output, a number: `1` (red), `2` (blue)
+
 ## pfTransmitter.singleOutputMode
 
 Single output mode (speed remote control). 
